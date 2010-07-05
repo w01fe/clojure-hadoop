@@ -2,9 +2,9 @@
   (:require [clojure-hadoop.imports :as imp]
             [clojure-hadoop.load :as load])
   (:import (org.apache.hadoop.io.compress
-            DefaultCodec GzipCodec LzoCodec)))
+            DefaultCodec GzipCodec BZip2Codec)))
 
-;; This file defines configuration options for clojure-hadoop.  
+;; This file defines configuration options for clojure-hadoop.
 ;;
 ;; The SAME options may be given either on the command line (to
 ;; clojure_hadoop.job) or in a call to defjob.
@@ -124,15 +124,15 @@
 ;; TextInputFormat, "kvtext" fro KeyValueTextInputFormat, "seq" for
 ;; SequenceFileInputFormat.
 (defmethod conf :input-format [#^JobConf jobconf key value]
-  (let [value (as-str value)]
+  (let [val (as-str value)]
     (cond
-      (= "text" value)
+      (= "text" val)
       (.setInputFormat jobconf TextInputFormat)
 
-      (= "kvtext" value)
+      (= "kvtext" val)
       (.setInputFormat jobconf KeyValueTextInputFormat)
 
-      (= "seq" value)
+      (= "seq" val)
       (.setInputFormat jobconf SequenceFileInputFormat)
 
       :else
@@ -141,12 +141,12 @@
 ;; The output file format.  May be a class name or "text" for
 ;; TextOutputFormat, "seq" for SequenceFileOutputFormat.
 (defmethod conf :output-format [#^JobConf jobconf key value]
-  (let [value (as-str value)]
+  (let [val (as-str value)]
     (cond
-      (= "text" value)
+      (= "text" val)
       (.setOutputFormat jobconf TextOutputFormat)
 
-      (= "seq" value)
+      (= "seq" val)
       (.setOutputFormat jobconf SequenceFileOutputFormat)
 
       :else
@@ -154,49 +154,52 @@
 
 ;; If true, compress job output files.
 (defmethod conf :compress-output [#^JobConf jobconf key value]
-  (cond
-   (= "true" (as-str value))
-   (FileOutputFormat/setCompressOutput jobconf true)
+  (let [val (.toLowerCase (as-str value))]
+    (cond
+     (= "true" val)
+     (FileOutputFormat/setCompressOutput jobconf true)
 
-   (= "false" (as-str value))
-   (FileOutputFormat/setCompressOutput jobconf false)
+     (= "false" val)
+     (FileOutputFormat/setCompressOutput jobconf false)
 
-   :else
-   (throw (Exception. "compress-output value must be true or false"))))
+     :else
+     (throw (Exception. (str  "compress-output value must be true or false, but given '" val "'"))))))
 
 ;; Codec to use for compressing job output files.
 (defmethod conf :output-compressor [#^JobConf jobconf key value]
-  (cond
-   (= "default" (as-str value))
-   (FileOutputFormat/setOutputCompressorClass
-    jobconf DefaultCodec)
+  (let [val (as-str value)] ;; TODO: conv to lowercase?
+    (cond
+     (= "default" val)
+     (FileOutputFormat/setOutputCompressorClass
+      jobconf DefaultCodec)
 
-   (= "gzip" (as-str value))
-   (FileOutputFormat/setOutputCompressorClass
-    jobconf GzipCodec)
+     (= "gzip" val)
+     (FileOutputFormat/setOutputCompressorClass
+      jobconf GzipCodec)
 
-   (= "lzo" (as-str value))
-   (FileOutputFormat/setOutputCompressorClass
-    jobconf LzoCodec)
+     (= "bzip2" val)
+     (FileOutputFormat/setOutputCompressorClass
+      jobconf BZip2Codec)
 
-   :else
-   (FileOutputFormat/setOutputCompressorClass
-    jobconf (Class/forName value))))
+     :else
+     (FileOutputFormat/setOutputCompressorClass
+      jobconf (Class/forName value)))))
 
 ;; Type of compression to use for sequence files.
 (defmethod conf :compression-type [#^JobConf jobconf key value]
-  (cond
-   (= "block" (as-str value))
-   (SequenceFileOutputFormat/setOutputCompressionType 
-    jobconf SequenceFile$CompressionType/BLOCK)
+  (let [val (as-str value)] ;; TODO: conv to lowercase?
+    (cond
+     (= "block" val)
+     (SequenceFileOutputFormat/setOutputCompressionType
+      jobconf SequenceFile$CompressionType/BLOCK)
 
-   (= "none" (as-str value))
-   (SequenceFileOutputFormat/setOutputCompressionType 
-    jobconf SequenceFile$CompressionType/NONE)
+     (= "none" val)
+     (SequenceFileOutputFormat/setOutputCompressionType
+      jobconf SequenceFile$CompressionType/NONE)
 
-   (= "record" (as-str value))
-   (SequenceFileOutputFormat/setOutputCompressionType 
-    jobconf SequenceFile$CompressionType/RECORD)))
+     (= "record" val)
+     (SequenceFileOutputFormat/setOutputCompressionType
+      jobconf SequenceFile$CompressionType/RECORD))))
 
 (defn parse-command-line-args [#^JobConf jobconf args]
   (when (empty? args)
@@ -233,7 +236,7 @@ Other available options are:
  -name              Job name
  -replace           If \"true\", deletes output dir before start
  -compress-output   If \"true\", compress job output files
- -output-compressor Compression class or \"gzip\",\"lzo\",\"default\"
+ -output-compressor Compression class or \"gzip\",\"bzip2\",\"default\"
  -compression-type  For seqfiles, compress \"block\",\"record\",\"none\"
 "))
 

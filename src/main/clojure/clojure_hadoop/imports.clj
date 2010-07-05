@@ -27,7 +27,7 @@ VLongWritable WritableComparator WritableFactories WritableName
 WritableUtils SequenceFile$CompressionType MultipleIOException
 VersionMismatchException)))
 
-(defn import-io-compress 
+(defn import-io-compress
   "Imports all classes/interfaces/exceptions from the package
   org.apache.hadoop.io.compress into the current namespace."
   []
@@ -37,7 +37,7 @@ CompressionCodecFactory CompressionInputStream CompressionOutputStream
 CompressorStream DecompressorStream DefaultCodec GzipCodec
 GzipCodec$GzipInputStream GzipCodec$GzipOutputStream)))
 
-(defn import-fs 
+(defn import-fs
   "Imports all classes/interfaces/exceptions from the package
   org.apache.hadoop.fs into the current namespace."
   []
@@ -50,7 +50,7 @@ FSOutputSummer FsShell FsUrlStreamHandlerFactory HarFileSystem
 InMemoryFileSystem LocalDirAllocator LocalFileSystem Path
 RawLocalFileSystem Trash ChecksumException FSError)))
 
-(defn import-mapred 
+(defn import-mapred
   "Imports all classes/interfaces/exceptions from the package
   org.apache.hadoop.mapred into the current namespace."
   []
@@ -85,7 +85,7 @@ TaskCompletionEvent$Status TaskLog$LogName FileAlreadyExistsException
 InvalidFileTypeException InvalidInputException InvalidJobConfException
 JobTracker$IllegalStateException)))
 
-(defn import-mapred-lib 
+(defn import-mapred-lib
   "Imports all classes/interfaces/exceptions from the package
   org.apache.hadoop.mapred.lib into the current namespace."
   []

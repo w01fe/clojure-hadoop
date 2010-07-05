@@ -11,7 +11,8 @@
       <unpack>true</unpack>
       <scope>runtime</scope>
       <excludes>
-        <exclude>org.apache.hadoop:hadoop-core-with-dependencies</exclude>
+        <exclude>org.apache.hadoop:hadoop-core</exclude>
+        <exclude>log4j:log4j</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>
