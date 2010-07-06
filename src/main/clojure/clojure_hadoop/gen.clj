@@ -26,7 +26,7 @@
   the standard Hadoop command-line tools."
   []
   (let [the-name (.replace (str (ns-name *ns*)) \- \_)]
-    `(do 
+    `(do
        (gen-class
         :name ~the-name
         :extends "org.apache.hadoop.conf.Configured"
@@ -37,12 +37,14 @@
         :name ~(str the-name "_mapper")
         :extends "org.apache.hadoop.mapred.MapReduceBase"
         :implements ["org.apache.hadoop.mapred.Mapper"]
-        :prefix "mapper-")
+        :prefix "mapper-"
+        :main false)
        (gen-class
         :name ~(str the-name "_reducer")
         :extends "org.apache.hadoop.mapred.MapReduceBase"
         :implements ["org.apache.hadoop.mapred.Reducer"]
-        :prefix "reducer-"))))
+        :prefix "reducer-"
+        :main false))))
 
 (defn gen-main-method
   "Adds a standard main method, named tool-main, to the current
@@ -52,7 +54,7 @@
     (intern *ns* 'tool-main
             (fn [& args]
               (System/exit
-               (org.apache.hadoop.util.ToolRunner/run 
+               (org.apache.hadoop.util.ToolRunner/run
                 (new org.apache.hadoop.conf.Configuration)
                 (. (Class/forName the-name) newInstance)
                 (into-array String args)))))))

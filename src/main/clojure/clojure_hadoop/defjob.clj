@@ -18,7 +18,7 @@
 
   A job function may be given as the -job argument to
   clojure_hadoop.job to run a job."
-  [sym & options]
+  [sym & opts]
   (let [args (reduce (fn [m [k v]]
                        (assoc m k
                               (cond (keyword? v) (name v)
@@ -26,5 +26,5 @@
                                     (symbol? v) (full-name v)
                                     (instance? Boolean v) (str v)
                                     :else (throw (Exception. "defjob arguments must be strings, symbols, or keywords")))))
-                     {} (apply hash-map options))]
+                     {} (apply hash-map opts))]
     `(defn ~sym [] ~args)))
