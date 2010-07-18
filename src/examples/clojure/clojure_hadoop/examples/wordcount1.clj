@@ -19,8 +19,8 @@
 ;;
 ;; This will count the instances of each word in README.txt and write
 ;; the results to out1/part-00000
- 
-  
+
+
 (ns clojure-hadoop.examples.wordcount1
   (:require [clojure-hadoop.gen :as gen]
             [clojure-hadoop.imports :as imp])
@@ -44,11 +44,11 @@
   (doseq [word (enumeration-seq (StringTokenizer. (str value)))]
     (.collect output (Text. word) (LongWritable. 1))))
 
-(defn reducer-reduce 
+(defn reducer-reduce
   "This is our implementation of the Reducer.reduce method.  The key
   argument is a sub-class of Hadoop's Writable, but 'values' is a Java
   Iterator that returns successive values.  We have to use
-  iterator-seq to get a Clojure sequence from the Iterator.  
+  iterator-seq to get a Clojure sequence from the Iterator.
 
   Beware, however, that Hadoop re-uses a single object for every
   object returned by the Iterator.  So when you get an object from the

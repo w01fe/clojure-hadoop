@@ -1,3 +1,9 @@
+Changes in Version 1.2.0:
+
+ * Switch to Clojure 1.2.0
+
+ * Switch to Hadoop 0.20.x
+
 Changes in Version 1.1.0:
 
  * Additional configuration options for defjob and command line:

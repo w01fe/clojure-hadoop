@@ -2,7 +2,7 @@
 ;;
 ;; This example wordcount program uses defjob like wordcount4, but it
 ;; includes some more configuration options that make it more
-;; efficient.  
+;; efficient.
 ;;
 ;; In the default configuration (wordcount4), everything is passed to
 ;; Hadoop as a Text and converted by the Clojure reader and printer.
@@ -20,11 +20,11 @@
 ;;
 ;; The output is plain text, written to out5/part-00000
 ;;
-;; Notice that the strings in the output are not quoted.  In effect,
+;; Notice that the strings in the output are not quoted.  In effect
 ;; we have come full circle to wordcount1, while maintaining the
 ;; separation between the mapper/reducer functions and the
 ;; reader/writer functions.
-  
+
 
 (ns clojure-hadoop.examples.wordcount5
   (:require [clojure-hadoop.wrap :as wrap]

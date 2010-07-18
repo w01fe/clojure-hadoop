@@ -24,8 +24,8 @@
 ;; with (all one line):
 ;;
 ;;   java -cp examples.jar org.apache.hadoop.fs.FsShell \
-;;        -text out4/part-00000 
-  
+;;        -text out4/part-00000
+
 
 (ns clojure-hadoop.examples.wordcount4
   (:require [clojure-hadoop.wrap :as wrap]
