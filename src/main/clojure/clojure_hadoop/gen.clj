@@ -1,5 +1,5 @@
 (ns clojure-hadoop.gen
-;;#^{:doc "Class-generation helpers for writing Hadoop jobs in Clojure."}
+;;^{:doc "Class-generation helpers for writing Hadoop jobs in Clojure."}
 )
 
 (defmacro gen-job-classes

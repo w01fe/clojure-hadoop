@@ -64,7 +64,7 @@
       (fn [key values-fn]
         [[key (reduce + (values-fn))]])))
 
-(defn tool-run [#^Tool this args]
+(defn tool-run [^Tool this args]
   (doto (JobConf. (.getConf this) (.getClass this))
     (.setJobName "wordcount2")
     (.setOutputKeyClass Text)
@@ -73,7 +73,7 @@
     (.setReducerClass (Class/forName "clojure_hadoop.examples.wordcount2_reducer"))
     (.setInputFormat TextInputFormat)
     (.setOutputFormat TextOutputFormat)
-    (FileInputFormat/setInputPaths #^String (first args))
+    (FileInputFormat/setInputPaths ^String (first args))
     (FileOutputFormat/setOutputPath (Path. (second args)))
     (JobClient/runJob))
   0)

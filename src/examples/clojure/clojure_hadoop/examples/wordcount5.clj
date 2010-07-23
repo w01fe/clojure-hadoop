@@ -42,13 +42,13 @@
 (defn my-reduce [key values-fn]
   [[key (reduce + (values-fn))]])
 
-(defn string-long-writer [#^OutputCollector output
-                          #^String key value]
+(defn string-long-writer [^OutputCollector output
+                          ^String key value]
   (.collect output (Text. key) (LongWritable. value)))
 
-(defn string-long-reduce-reader [#^Text key wvalues]
+(defn string-long-reduce-reader [^Text key wvalues]
   [(.toString key)
-   (fn [] (map (fn [#^LongWritable v] (.get v))
+   (fn [] (map (fn [^LongWritable v] (.get v))
                (iterator-seq wvalues)))])
 
 (defjob/defjob job

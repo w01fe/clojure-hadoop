@@ -1,40 +1,40 @@
 (ns clojure-hadoop.wrap
-  ;;#^{:doc "Map/Reduce wrappers that set up common input/output
+  ;;^{:doc "Map/Reduce wrappers that set up common input/output
   ;;conversions for Clojure jobs."}
   (:require [clojure-hadoop.imports :as imp]))
 
 (imp/import-io)
 (imp/import-mapred)
 
-(declare #^Reporter *reporter*)
+(declare ^Reporter *reporter*)
 
 (defn string-map-reader
   "Returns a [key value] pair by calling .toString on the Writable key
   and value."
-  [#^Writable wkey #^Writable wvalue]
+  [^Writable wkey ^Writable wvalue]
   [(.toString wkey) (.toString wvalue)])
 
-(defn int-string-map-reader [#^LongWritable wkey #^Writable wvalue]
+(defn int-string-map-reader [^LongWritable wkey ^Writable wvalue]
   [(.get wkey) (.toString wvalue)])
 
 (defn clojure-map-reader
   "Returns a [key value] pair by calling read-string on the string
   representations of the Writable key and value."
-  [#^Writable wkey #^Writable wvalue]
+  [^Writable wkey ^Writable wvalue]
   [(read-string (.toString wkey)) (read-string (.toString wvalue))])
 
 (defn clojure-reduce-reader
   "Returns a [key seq-of-values] pair by calling read-string on the
   string representations of the Writable key and values."
-  [#^Writable wkey wvalues]
+  [^Writable wkey wvalues]
   [(read-string (.toString wkey))
-   (fn [] (map (fn [#^Writable v] (read-string (.toString v)))
+   (fn [] (map (fn [^Writable v] (read-string (.toString v)))
                (iterator-seq wvalues)))])
 
 (defn clojure-writer
   "Sends key and value to the OutputCollector by calling pr-str on key
   and value and wrapping them in Hadoop Text objects."
-  [#^OutputCollector output key value]
+  [^OutputCollector output key value]
   (binding [*print-dup* true]
     (.collect output (Text. (pr-str key)) (Text. (pr-str value)))))
 

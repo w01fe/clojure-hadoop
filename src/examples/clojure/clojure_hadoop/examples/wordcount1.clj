@@ -40,7 +40,7 @@
   we have to convert them to strings or some other type before we can
   use them.  Likewise, we have to call the OutputCollector.collect
   method with objects that are sub-classes of Writable."
-  [this key value #^OutputCollector output reporter]
+  [this key value ^OutputCollector output reporter]
   (doseq [word (enumeration-seq (StringTokenizer. (str value)))]
     (.collect output (Text. word) (LongWritable. 1))))
 
@@ -56,8 +56,8 @@
   method) immediately, before accepting the next value from the
   iterator.  That is, you cannot hang on to past values from the
   iterator."
-  [this key values #^OutputCollector output reporter]
-  (let [sum (reduce + (map (fn [#^LongWritable v] (.get v)) (iterator-seq values)))]
+  [this key values ^OutputCollector output reporter]
+  (let [sum (reduce + (map (fn [^LongWritable v] (.get v)) (iterator-seq values)))]
     (.collect output key (LongWritable. sum))))
 
 (defn tool-run
@@ -68,7 +68,7 @@
 
   This method must return zero on success or Hadoop will report that
   the job failed."
-  [#^Tool this args]
+  [^Tool this args]
   (doto (JobConf. (.getConf this) (.getClass this))
     (.setJobName "wordcount1")
     (.setOutputKeyClass Text)
