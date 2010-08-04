@@ -44,6 +44,12 @@
         :extends "org.apache.hadoop.mapred.MapReduceBase"
         :implements ["org.apache.hadoop.mapred.Reducer"]
         :prefix "reducer-"
+        :main false)
+       (gen-class
+        :name ~(str the-name "_combiner")
+        :extends "org.apache.hadoop.mapred.MapReduceBase"
+        :implements ["org.apache.hadoop.mapred.Reducer"]
+        :prefix "combiner-"
         :main false))))
 
 (defn gen-main-method

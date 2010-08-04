@@ -18,15 +18,18 @@
 
 (def ^{:private true} method-fn-name
      {"map" "mapper-map"
-      "reduce" "reducer-reduce"})
+      "reduce" "reducer-reduce"
+      "combiner" "combiner-reduce"})
 
 (def ^{:private true} wrapper-fn
      {"map" wrap/wrap-map
-      "reduce" wrap/wrap-reduce})
+      "reduce" wrap/wrap-reduce
+      "combiner" wrap/wrap-reduce})
 
 (def ^{:private true} default-reader
      {"map" wrap/clojure-map-reader
-      "reduce" wrap/clojure-reduce-reader})
+      "reduce" wrap/clojure-reduce-reader
+      "combiner" wrap/clojure-reduce-reader})
 
 (defn- configure-functions
   "Preps the mapper or reducer with a Clojure function read from the
@@ -56,6 +59,30 @@
      (config/print-usage)
      (System/exit 1))))
 
+;;; MAPPER METHODS
+
+(defn mapper-configure [this jobconf]
+  (configure-functions "map" jobconf))
+
+(defn mapper-map [this wkey wvalue output reporter]
+  (throw (Exception. "Mapper function not defined.")))
+
+;;; REDUCER METHODS
+
+(defn reducer-configure [this jobconf]
+  (configure-functions "reduce" jobconf))
+
+(defn reducer-reduce [this wkey wvalues output reporter]
+  (throw (Exception. "Reducer function not defined.")))
+
+;;; COMBINER METHODS
+
+(defn combiner-configure [this jobconf]
+  (configure-functions "combiner" jobconf))
+
+(defn combiner-reduce [this wkey wvalues output reporter]
+  (throw (Exception. "Combiner function not defined.")))
+
 (defn- handle-replace-option [^JobConf jobconf]
   (when (= "true" (.get jobconf "clojure-hadoop.job.replace"))
     (let [fs (FileSystem/get jobconf)
@@ -81,23 +108,6 @@
   (doto jobconf
     (handle-replace-option)
     (JobClient/runJob)))
-
-
-;;; MAPPER METHODS
-
-(defn mapper-configure [this jobconf]
-  (configure-functions "map" jobconf))
-
-(defn mapper-map [this wkey wvalue output reporter]
-  (throw (Exception. "Mapper function not defined.")))
-
-;;; REDUCER METHODS
-
-(defn reducer-configure [this jobconf]
-  (configure-functions "reduce" jobconf))
-
-(defn reducer-reduce [this wkey wvalues output reporter]
-  (throw (Exception. "Reducer function not defined.")))
 
 ;;; TOOL METHODS
 

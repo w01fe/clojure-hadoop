@@ -101,6 +101,20 @@
     :else
     (throw (Exception. "map-count should be number!"))))
 
+;;
+(defmethod conf :combine [^JobConf jobconf key value]
+  (let [value (as-str value)]
+    (cond
+      (= "identity" value)
+      (.setCombinerClass jobconf IdentityReducer)
+
+      (.contains value "/")
+      (do
+        (.setCombinerClass jobconf (Class/forName "clojure_hadoop.job_combiner"))
+        (.set jobconf "clojure-hadoop.job.combiner" value))
+
+      :else
+      (.setCombinerClass jobconf (Class/forName value)))))
 
 ;; The mapper reader function, converts Hadoop Writable types to
 ;; native Clojure types.
