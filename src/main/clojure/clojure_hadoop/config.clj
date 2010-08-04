@@ -1,6 +1,7 @@
 (ns clojure-hadoop.config
   (:require [clojure-hadoop.imports :as imp]
             [clojure-hadoop.load :as load])
+  (:use [clojure.string :only [trim]])
   (:import (org.apache.hadoop.io.compress
             DefaultCodec GzipCodec BZip2Codec)))
 
@@ -64,6 +65,15 @@
       :else
       (.setMapperClass jobconf (Class/forName value)))))
 
+;; Sets number of map tasks
+(defmethod conf :map-count [^JobConf jobconf key value]
+  (cond
+    (string? value)
+    (.setNumMapTasks jobconf (Integer/parseInt (trim value)))
+
+    :else
+    (throw (Exception. "map-count should be number!"))))
+
 ;; The reducer function.  May be a class name or a Clojure function as
 ;; namespace/symbol.  May also be "identity" for IdentityReducer or
 ;; "none" for no reduce stage.
@@ -81,6 +91,16 @@
 
       :else
       (.setReducerClass jobconf (Class/forName value)))))
+
+;; Sets number of reducer tasks
+(defmethod conf :reduce-count [^JobConf jobconf key value]
+  (cond
+    (string? value)
+    (.setNumReduceTasks jobconf (Integer/parseInt (trim value)))
+
+    :else
+    (throw (Exception. "map-count should be number!"))))
+
 
 ;; The mapper reader function, converts Hadoop Writable types to
 ;; native Clojure types.
@@ -227,10 +247,12 @@ Other available options are:
  -output-format     Class name or \"text\" or \"seq\" (SeqFile)
  -output-key        Class for job output key
  -output-value      Class for job output value
+ -map-count         Number of Mapper instances
  -map-output-key    Class for intermediate Mapper output key
  -map-output-value  Class for intermediate Mapper output value
  -map-reader        Mapper reader function, as namespace/name
  -map-writer        Mapper writer function, as namespace/name
+ -reduce-count      Number of Reducer instances
  -reduce-reader     Reducer reader function, as namespace/name
  -reduce-writer     Reducer writer function, as namespace/name
  -name              Job name
