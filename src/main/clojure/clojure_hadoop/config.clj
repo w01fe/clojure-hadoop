@@ -269,6 +269,7 @@ Other available options are:
  -reduce-count      Number of Reducer instances
  -reduce-reader     Reducer reader function, as namespace/name
  -reduce-writer     Reducer writer function, as namespace/name
+ -combine           Combiner function, as namespace/name or class name
  -name              Job name
  -replace           If \"true\", deletes output dir before start
  -compress-output   If \"true\", compress job output files
