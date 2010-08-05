@@ -109,9 +109,9 @@
       (.setCombinerClass jobconf IdentityReducer)
 
       (.contains value "/")
-      (do
-        (.setCombinerClass jobconf (Class/forName "clojure_hadoop.job_combiner"))
-        (.set jobconf "clojure-hadoop.job.combiner" value))
+      (doto jobconf
+        (.setCombinerClass (Class/forName "clojure_hadoop.job_combiner"))
+        (.set "clojure-hadoop.job.combiner" value))
 
       :else
       (.setCombinerClass jobconf (Class/forName value)))))
@@ -197,27 +197,23 @@
      (FileOutputFormat/setCompressOutput jobconf false)
 
      :else
-     (throw (Exception. (str  "compress-output value must be true or false, but given '" val "'"))))))
+     (throw (Exception. (str "compress-output value must be true or false, but given '" val "'"))))))
 
 ;; Codec to use for compressing job output files.
 (defmethod conf :output-compressor [^JobConf jobconf key value]
   (let [val (as-str value)] ;; TODO: conv to lowercase?
     (cond
      (= "default" val)
-     (FileOutputFormat/setOutputCompressorClass
-      jobconf DefaultCodec)
+     (FileOutputFormat/setOutputCompressorClass jobconf DefaultCodec)
 
      (= "gzip" val)
-     (FileOutputFormat/setOutputCompressorClass
-      jobconf GzipCodec)
+     (FileOutputFormat/setOutputCompressorClass jobconf GzipCodec)
 
      (= "bzip2" val)
-     (FileOutputFormat/setOutputCompressorClass
-      jobconf BZip2Codec)
+     (FileOutputFormat/setOutputCompressorClass jobconf BZip2Codec)
 
      :else
-     (FileOutputFormat/setOutputCompressorClass
-      jobconf (Class/forName value)))))
+     (FileOutputFormat/setOutputCompressorClass jobconf (Class/forName value)))))
 
 ;; Type of compression to use for sequence files.
 (defmethod conf :compression-type [^JobConf jobconf key value]
