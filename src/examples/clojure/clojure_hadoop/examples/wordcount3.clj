@@ -57,3 +57,5 @@
 (defn my-reduce [key values-fn]
   [[key (reduce + (values-fn))]])
 
+(defn my-combine [key values-fn]
+  [[key (reduce + (values-fn))]])
