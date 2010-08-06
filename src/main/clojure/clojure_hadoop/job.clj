@@ -77,6 +77,13 @@
 
 ;;; COMBINER METHODS
 
+(gen-class
+ :name ~(str the-name "_combiner")
+ :extends "org.apache.hadoop.mapred.MapReduceBase"
+ :implements ["org.apache.hadoop.mapred.Reducer"]
+ :prefix "combiner-"
+ :main false)
+
 (defn combiner-configure [this jobconf]
   (configure-functions "combiner" jobconf))
 
