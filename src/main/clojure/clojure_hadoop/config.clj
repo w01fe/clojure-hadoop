@@ -124,7 +124,8 @@
 ;; The mapper writer function; converts native Clojure types to Hadoop
 ;; Writable types.
 (defmethod conf :map-writer [^JobConf jobconf key value]
-  (.set jobconf "clojure-hadoop.job.map.writer" (as-str value)))
+  (.set jobconf "clojure-hadoop.job.map.writer" (as-str value))
+  (.set jobconf "clojure-hadoop.job.combiner.writer" (as-str value)))
 
 ;; The mapper output key class; used when the mapper writer outputs
 ;; types different from the job output.
@@ -147,7 +148,8 @@
 ;; The reducer reader function, converts Hadoop Writable types to
 ;; native Clojure types.
 (defmethod conf :reduce-reader [^JobConf jobconf key value]
-  (.set jobconf "clojure-hadoop.job.reduce.reader" (as-str value)))
+  (.set jobconf "clojure-hadoop.job.reduce.reader" (as-str value))
+  (.set jobconf "clojure-hadoop.job.combiner.reader" (as-str value)))
 
 ;; The reducer writer function; converts native Clojure types to
 ;; Hadoop Writable types.
