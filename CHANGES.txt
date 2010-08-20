@@ -4,6 +4,10 @@ Changes in Version 1.2.0:
 
  * Switch to Hadoop 0.20.x
 
+ * Added support for combiners in job/defjob
+
+ * Added job/defjob options to control number of mappers/reducers
+
 Changes in Version 1.1.0:
 
  * Additional configuration options for defjob and command line:
