@@ -4,7 +4,7 @@
   <groupId>com.stuartsierra</groupId>
   <artifactId>clojure-hadoop</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>1.2.0</version>
   <name>clojure-hadoop</name>
   <url>http://github.com/stuartsierra/clojure-hadoop</url>
   <developers>
@@ -13,6 +13,12 @@
       <name>Stuart Sierra</name>
       <email>mail@stuartsierra.com</email>
       <url>http://www.stuartsierra.com/</url>
+    </developer>
+    <developer>
+      <id>alexott</id>
+      <name>Alex Ott</name>
+      <email>alexott@gmail.com</email>
+      <url>http://alexott.net/</url>
     </developer>
   </developers>
   <licenses>
@@ -43,7 +49,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.2.0-master-SNAPSHOT</version>
+      <version>1.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
