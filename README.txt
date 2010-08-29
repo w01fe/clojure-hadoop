@@ -86,7 +86,7 @@ the following lines to your pom.xml:
 
       <repository>
         <id>clojars</id>
-        <url>http://clojars.org/repo</url>
+        <url> http://clojars.org/repo </url>
       </repository>
 
       ...
