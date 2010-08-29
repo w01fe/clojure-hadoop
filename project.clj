@@ -11,7 +11,10 @@
         clojure-hadoop.imports
         clojure-hadoop.job
         clojure-hadoop.load
-        clojure-hadoop.wrap]
+        clojure-hadoop.wrap
+        ;; TODO: Remove them? Only needed for the tests.
+        clojure-hadoop.examples.wordcount1 
+        clojure-hadoop.examples.wordcount2]
   :compile-path "target/classes"
   :source-path "src/main/clojure"
   :test-path "src/test/clojure")

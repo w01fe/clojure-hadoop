@@ -30,7 +30,8 @@
   (:require [clojure-hadoop.wrap :as wrap]
             [clojure-hadoop.defjob :as defjob]
             [clojure-hadoop.imports :as imp])
-  (:import (java.util StringTokenizer)))
+  (:import (java.util StringTokenizer))
+  (:use clojure.test clojure-hadoop.job))
 
 (imp/import-io)  ;; for Text, LongWritable
 (imp/import-mapred)  ;; for OutputCollector
@@ -62,5 +63,10 @@
   :output-value LongWritable
   :input-format :text
   :output-format :text
-  :compress-output false)
+  :compress-output false
+  :input "README.txt"
+  :output "target/out5"
+  :replace true)
 
+(deftest test-wordcount-5
+  (run-job-fn job))

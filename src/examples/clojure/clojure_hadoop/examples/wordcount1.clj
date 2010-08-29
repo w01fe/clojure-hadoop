@@ -25,8 +25,10 @@
   (:require [clojure-hadoop.gen :as gen]
             [clojure-hadoop.imports :as imp])
   (:import (java.util StringTokenizer)
-           (org.apache.hadoop.util Tool)))
+           (org.apache.hadoop.util Tool))
+  (:use clojure.test))
 
+(imp/import-conf)   ;; Only for test
 (imp/import-io)     ;; for Text, LongWritable
 (imp/import-fs)     ;; for Path
 (imp/import-mapred) ;; for JobConf, JobClient
@@ -81,3 +83,7 @@
     (FileOutputFormat/setOutputPath (Path. (second args)))
     (JobClient/runJob))
   0)
+
+(deftest test-wordcount.1
+  (.delete (FileSystem/get (Configuration.)) (Path. "target/out1") true)
+  (tool-run (clojure_hadoop.job.) ["README.txt" "target/out1"]))

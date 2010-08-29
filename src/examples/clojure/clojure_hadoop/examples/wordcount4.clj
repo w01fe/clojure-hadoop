@@ -30,7 +30,8 @@
 (ns clojure-hadoop.examples.wordcount4
   (:require [clojure-hadoop.wrap :as wrap]
             [clojure-hadoop.defjob :as defjob])
-  (:import (java.util StringTokenizer)))
+  (:import (java.util StringTokenizer))
+  (:use clojure.test clojure-hadoop.job))
 
 (defn my-map [key value]
   (map (fn [token] [token 1])
@@ -43,5 +44,10 @@
   :map my-map
   :map-reader wrap/int-string-map-reader
   :reduce my-reduce
-  :input-format :text)
+  :input-format :text
+  :input "README.txt"
+  :output "target/out4"
+  :replace true)
 
+(deftest test-wordcount-4
+  (run-job-fn job))

@@ -48,7 +48,8 @@
 
 
 (ns clojure-hadoop.examples.wordcount3
-  (:import (java.util StringTokenizer)))
+  (:import (java.util StringTokenizer))
+  (:use clojure.test clojure-hadoop.job))
 
 (defn my-map [key value]
   (map (fn [token] [token 1])
@@ -59,3 +60,13 @@
 
 (defn my-combine [key values-fn]
   [[key (reduce + (values-fn))]])
+
+(deftest test-wordcount-3
+  (run-job-fn (fn []
+                {:map "clojure-hadoop.examples.wordcount3/my-map"
+                 :map-reader "clojure-hadoop.wrap/int-string-map-reader"
+                 :reduce "clojure-hadoop.examples.wordcount3/my-reduce"
+                 :input-format "text"
+                 :input "README.txt"
+                 :output "target/out3"
+                 :replace "true"})))
