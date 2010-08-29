@@ -3,6 +3,7 @@
   (:use clojure.test))
 
 (deftest test-imports
+  (imp/import-conf)
   (imp/import-io)
   (imp/import-io-compress)
   (imp/import-fs)

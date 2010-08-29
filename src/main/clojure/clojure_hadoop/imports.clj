@@ -2,6 +2,13 @@
 ;;^{:doc "Functions to import entire packages under org.apache.hadoop."}
 )
 
+(defn import-conf
+  "Imports all classes/interfaces/exceptions from the package
+  org.apache.hadoop.conf into the current namespace."
+  []
+  (import '(org.apache.hadoop.conf Configurable Configuration
+Configuration$IntegerRanges Configured)))
+
 (defn import-io
   "Imports all classes/interfaces/exceptions from the package
   org.apache.hadoop.io into the current namespace."
