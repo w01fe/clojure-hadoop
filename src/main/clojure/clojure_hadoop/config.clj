@@ -41,6 +41,9 @@
   (doseq [[k v] (value)]
     (conf jobconf k v)))
 
+(defmethod conf :name [^JobConf jobconf key value]  
+  (.setJobName jobconf value))
+
 ;; Job input paths, separated by commas, as a String.
 (defmethod conf :input [^JobConf jobconf key value]
   (FileInputFormat/setInputPaths jobconf (as-str value)))
