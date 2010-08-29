@@ -6,6 +6,7 @@
             [clojure-hadoop.load :as load])
   (:import (org.apache.hadoop.util Tool)))
 
+(imp/import-conf)
 (imp/import-io)
 (imp/import-io-compress)
 (imp/import-fs)
@@ -31,12 +32,15 @@
       "reduce" wrap/clojure-reduce-reader
       "combiner" wrap/clojure-reduce-reader})
 
+(defn- set-jobconf [jobconf]
+  (alter-var-root (var *jobconf*) (fn [_] jobconf)))
+
 (defn- configure-functions
   "Preps the mapper or reducer with a Clojure function read from the
   job configuration.  Called from Mapper.configure and
   Reducer.configure."
   [type ^JobConf jobconf]
-  (alter-var-root (var *jobconf*) (fn [_] jobconf))
+  (set-jobconf jobconf)
   (let [function (load/load-name (.get jobconf (str "clojure-hadoop.job." type)))
         reader (if-let [v (.get jobconf (str "clojure-hadoop.job." type ".reader"))]
                  (load/load-name v)
@@ -116,7 +120,19 @@
     (handle-replace-option)
     (JobClient/runJob)))
 
+(defn run-job-fn
+  "Runs a Hadoop job given the job-fn."
+  [job-fn & [tool]]
+  (let [tool (or tool (clojure_hadoop.job.))]
+    (doto (JobConf. (.getConf tool) (.getClass tool))      
+      (set-default-config)
+      (config/conf :job-fn job-fn)
+      (run))))
+
 ;;; TOOL METHODS
+
+(defn tool-getConf [this]
+  (or *jobconf* (Configuration.)))
 
 (defn tool-run [^Tool this args]
   (doto (JobConf. (.getConf this) (.getClass this))
@@ -125,3 +141,5 @@
     (run))
   0)
 
+(defn tool-setConf [this jobconf]
+  (set-jobconf jobconf))

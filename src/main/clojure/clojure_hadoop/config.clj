@@ -35,8 +35,11 @@
 
 (defmethod conf :job [jobconf key value]
   (let [f (load/load-name value)]
-    (doseq [[k v] (f)]
-      (conf jobconf k v))))
+    (conf jobconf :job-fn f)))
+
+(defmethod conf :job-fn [jobconf key value]  
+  (doseq [[k v] (value)]
+    (conf jobconf k v)))
 
 ;; Job input paths, separated by commas, as a String.
 (defmethod conf :input [^JobConf jobconf key value]
