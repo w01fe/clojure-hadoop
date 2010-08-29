@@ -68,5 +68,5 @@
                  :reduce "clojure-hadoop.examples.wordcount3/my-reduce"
                  :input-format "text"
                  :input "README.txt"
-                 :output "target/out3"
+                 :output "tmp/out3"
                  :replace "true"})))

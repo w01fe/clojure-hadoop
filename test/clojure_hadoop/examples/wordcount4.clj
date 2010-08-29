@@ -46,7 +46,7 @@
   :reduce my-reduce
   :input-format :text
   :input "README.txt"
-  :output "target/out4"
+  :output "tmp/out4"
   :replace true)
 
 (deftest test-wordcount-4

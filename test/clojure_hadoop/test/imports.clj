@@ -1,4 +1,4 @@
-(ns clojure-hadoop.test-imports
+(ns clojure-hadoop.test.imports
   (:require [clojure-hadoop.imports :as imp])
   (:use clojure.test))
 

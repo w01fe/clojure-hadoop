@@ -85,5 +85,5 @@
   0)
 
 (deftest test-wordcount.1
-  (.delete (FileSystem/get (Configuration.)) (Path. "target/out1") true)
-  (tool-run (clojure_hadoop.job.) ["README.txt" "target/out1"]))
+  (.delete (FileSystem/get (Configuration.)) (Path. "tmp/out1") true)
+  (tool-run (clojure_hadoop.job.) ["README.txt" "tmp/out1"]))

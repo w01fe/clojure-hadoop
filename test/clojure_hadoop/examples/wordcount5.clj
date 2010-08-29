@@ -65,7 +65,7 @@
   :output-format :text
   :compress-output false
   :input "README.txt"
-  :output "target/out5"
+  :output "tmp/out5"
   :replace true)
 
 (deftest test-wordcount-5

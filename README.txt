@@ -25,13 +25,11 @@ the terms of this license.  You must not remove this notice, or any
 other, from this software.
 
 
-
 DEPENDENCIES
 
 This library requires Java 6 JDK, http://java.sun.com/
 
-Building from source requires Apache Maven 2, http://maven.apache.org/
-
+Building from source requires Leiningen, http://github.com/technomancy/leiningen
 
 
 BUILDING
@@ -40,55 +38,30 @@ If you downloaded the library distribution as a .zip or .tar file,
 everything is pre-built and there is nothing you need to do.
 
 If you downloaded the sources from Git, then you need to run the build
-with Maven. In the top-level directory of this project, run:
+with Leiningen. In the top-level directory of this project, run:
 
-    mvn assembly:assembly
+    lein jar
 
-This compiles and builds the JAR files.
-
-You can find these files in the "target" directory (replace ${VERSION}
-with the current version number of this library):
-
-    clojure-hadoop-${VERSION}-examples.jar :
-
-        This JAR contains all dependencies, including all of Hadoop
-        0.18.3.  You can use this JAR to run the example MapReduce
-        jobs from the command line.  This file is ONLY for running the
-        examples.
+This compiles and builds the JAR file.
 
 
-    clojure-hadoop-${VERSION}-job.jar :
-
-        This JAR contains the clojure-hadoop libraries and Clojure
-        1.0.  It is suitable for inclusion in the "lib" directory of a
-        JAR file submitted as a Hadoop job.
-
-
-    clojure-hadoop-${VERSION}.jar :
-
-        This JAR contains ONLY the clojure-hadoop libraries.  It can
-        be placed in the "lib" directory of a JAR file submitted as a
-        Hadoop job; that JAR must also include the Clojure 1.0 JAR.
-
-
-
-RUNNING THE EXAMPLES
+RUNNING THE EXAMPLES & TESTS
 
 After building, copy the file from
 
-    target/clojure-hadoop-${VERSION}-examples.jar
+    clojure-hadoop-${VERSION}.jar
 
 to something short, like "examples.jar".  Each of the *.clj files in
-the src/examples directory contains instructions for running that
-example.
+the test/clojure_hadoop/examples directory contains instructions for
+running that example.
 
+The wordcount examples can also be run via the "lein test" command.
 
 
 USING THE LIBRARY IN HADOOP
 
-After building, include the "clojure-hadoop-${VERSION}-job.jar" file
+After building, include the "clojure-hadoop-${VERSION}.jar" file
 in the lib/ directory of the JAR you submit as your Hadoop job.
-
 
 
 DEPENDING ON THE LIBRARY WITH MAVEN
@@ -100,7 +73,7 @@ the following lines to your pom.xml:
       ...
 
       <dependency>
-        <groupId>com.stuartsierra</groupId>
+        <groupId>org.clojars.r0man/clojure-hadoop</groupId>
         <artifactId>clojure-hadoop</artifactId>
         <version>${VERSION}</version>
       </dependency>
@@ -110,22 +83,14 @@ the following lines to your pom.xml:
     ...
     <repositories>
       ...
-      <!-- For released versions: -->
+
       <repository>
-        <id>stuartsierra-releases</id>
-        <name>Stuart Sierra's personal Maven 2 release repository</name>
-        <url>http://stuartsierra.com/maven2</url>
+        <id>clojars</id>
+        <url>http://clojars.org/repo/</url>
       </repository>
 
-      <!-- For SNAPSHOT versions: -->
-      <repository>
-        <id>stuartsierra-snapshots</id>
-        <name>Stuart Sierra's personal Maven 2 SNAPSHOT repository</name>
-        <url>http://stuartsierra.com/m2snapshots</url>
-      </repository>
       ...
     </repositories>
-
 
 
 USING THE LIBRARY
@@ -163,3 +128,8 @@ Layer 5: clojure-hadoop.defjob
     A convenient macro to configure MapReduce jobs with Clojure code.
     See the example files "wordcount4.clj" and "wordcount5.clj" for
     demonstrations of this macro.
+
+
+NOTES
+
+* README.txt changed to reflect the Leiningen build process (Roman Scherer).

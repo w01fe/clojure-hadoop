@@ -19,7 +19,7 @@
         clojure-hadoop.wrap
         ;; TODO: Remove them? Only needed for the tests.
         clojure-hadoop.examples.wordcount1 
-        clojure-hadoop.examples.wordcount2]
-  :compile-path "target/classes"
-  :source-path "src/main/clojure"
-  :test-path "src/test/clojure")
+        clojure-hadoop.examples.wordcount2
+        clojure-hadoop.examples.wordcount3
+        clojure-hadoop.examples.wordcount4
+        clojure-hadoop.examples.wordcount5])
