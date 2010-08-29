@@ -7,5 +7,4 @@
   (imp/import-io-compress)
   (imp/import-fs)
   (imp/import-mapred)
-  (imp/import-mapred-lib)
-  (imp/import-util))
+  (imp/import-mapred-lib))
