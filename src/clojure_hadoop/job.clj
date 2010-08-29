@@ -122,12 +122,13 @@
 
 (defn run-job-fn
   "Runs a Hadoop job given the job-fn."
-  [job-fn & [tool]]
-  (let [tool (or tool (clojure_hadoop.job.))]
-    (doto (JobConf. (.getConf tool) (.getClass tool))      
-      (set-default-config)
-      (config/conf :job-fn job-fn)
-      (run))))
+  ([job-fn]
+     (run-job-fn (clojure_hadoop.job.) job-fn))
+  ([tool job-fn]
+     (doto (JobConf. (.getConf tool) (.getClass tool))      
+       (set-default-config)
+       (config/conf :job-fn job-fn)
+       (run))))
 
 ;;; TOOL METHODS
 
