@@ -1,6 +1,8 @@
 (ns clojure-hadoop.gen
-;;^{:doc "Class-generation helpers for writing Hadoop jobs in Clojure."}
-)
+  ;;^{:doc "Class-generation helpers for writing Hadoop jobs in Clojure."}
+  (:use [clojure-hadoop.imports :only (import-conf)]))
+
+(import-conf)
 
 (defmacro gen-job-classes
   "Creates gen-class forms for Hadoop job classes from the current
@@ -58,3 +60,14 @@
                 (new org.apache.hadoop.conf.Configuration)
                 (. (Class/forName the-name) newInstance)
                 (into-array String args)))))))
+
+(defmacro gen-conf-methods
+  "Adds the tool-getConf and tool-setConf methods, to the current
+  namespace."
+  []
+  `(do
+     (defn ~'tool-getConf [~'_]
+       (or ~'clojure-hadoop.job/*jobconf* (Configuration.)))
+     (defn ~'tool-setConf [~'_ ~'jobconf]
+       (clojure-hadoop.job/set-jobconf ~'jobconf))))
+

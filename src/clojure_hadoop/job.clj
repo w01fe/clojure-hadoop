@@ -32,7 +32,7 @@
       "reduce" wrap/clojure-reduce-reader
       "combiner" wrap/clojure-reduce-reader})
 
-(defn- set-jobconf [jobconf]
+(defn set-jobconf [jobconf]
   (alter-var-root (var *jobconf*) (fn [_] jobconf)))
 
 (defn- configure-functions
@@ -131,8 +131,7 @@
 
 ;;; TOOL METHODS
 
-(defn tool-getConf [this]
-  (or *jobconf* (Configuration.)))
+(gen/gen-conf-methods)
 
 (defn tool-run [^Tool this args]
   (doto (JobConf. (.getConf this) (.getClass this))
@@ -140,6 +139,3 @@
     (parse-command-line args)
     (run))
   0)
-
-(defn tool-setConf [this jobconf]
-  (set-jobconf jobconf))
