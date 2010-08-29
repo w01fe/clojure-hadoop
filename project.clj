@@ -12,5 +12,6 @@
         clojure-hadoop.job
         clojure-hadoop.load
         clojure-hadoop.wrap]
+  :compile-path "target/classes"
   :source-path "src/main/clojure"
   :test-path "src/test/clojure")
