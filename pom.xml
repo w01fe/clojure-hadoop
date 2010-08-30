@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.clojars.r0man</groupId>
+  <groupId>clojure-hadoop</groupId>
   <artifactId>clojure-hadoop</artifactId>
   <version>1.2.0-SNAPSHOT</version>
   <name>clojure-hadoop</name>
   <description>Library to aid writing Hadoop jobs in Clojure.</description>
-  <url>http://github.com/r0man/clojure-hadoop</url>
+  <url>http://github.com/alexott/clojure-hadoop</url>
   <licenses>
     <license>
       <name>Eclipse Public License 1.0</name>
@@ -16,14 +16,14 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:git:git://github.com/r0man/clojure-hadoop.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/r0man/clojure-hadoop.git</developerConnection>
-    <tag>2b750b67abd029b979f938265b688109701003da</tag>
-    <url>http://github.com/r0man/clojure-hadoop</url>
+    <connection>scm:git:git://github.com/alexott/clojure-hadoop.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/alexott/clojure-hadoop.git</developerConnection>
+    <tag>01b0d18428420248c35773ab4a36b45eb734dff5</tag>
+    <url>http://github.com/alexott/clojure-hadoop</url>
   </scm>
   <build>
-    <sourceDirectory>src/main/clojure</sourceDirectory>
-    <testSourceDirectory>src/test/clojure</testSourceDirectory>
+    <sourceDirectory>src</sourceDirectory>
+    <testSourceDirectory>test</testSourceDirectory>
     <resources>
       <resource>
         <directory>resources</directory>

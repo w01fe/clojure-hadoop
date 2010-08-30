@@ -73,7 +73,7 @@ the following lines to your pom.xml:
       ...
 
       <dependency>
-        <groupId>org.clojars.r0man/clojure-hadoop</groupId>
+        <groupId>clojure-hadoop</groupId>
         <artifactId>clojure-hadoop</artifactId>
         <version>${VERSION}</version>
       </dependency>
