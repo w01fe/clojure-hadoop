@@ -28,10 +28,11 @@
            (org.apache.hadoop.util Tool))
   (:use clojure.test))
 
-(imp/import-conf)   ;; Only for test
-(imp/import-io)     ;; for Text, LongWritable
-(imp/import-fs)     ;; for Path
-(imp/import-mapred) ;; for JobConf, JobClient
+(imp/import-conf)
+(imp/import-fs)
+(imp/import-io)
+(imp/import-mapreduce)
+(imp/import-mapreduce-lib) 
 
 (gen/gen-job-classes)  ;; generates Tool, Mapper, and Reducer classes
 (gen/gen-main-method)  ;; generates Tool.main method
@@ -42,9 +43,9 @@
   we have to convert them to strings or some other type before we can
   use them.  Likewise, we have to call the OutputCollector.collect
   method with objects that are sub-classes of Writable."
-  [this key value ^OutputCollector output reporter]
+  [this key value ^MapContext context]
   (doseq [word (enumeration-seq (StringTokenizer. (str value)))]
-    (.collect output (Text. word) (LongWritable. 1))))
+    (.write context (Text. word) (LongWritable. 1))))
 
 (defn reducer-reduce
   "This is our implementation of the Reducer.reduce method.  The key
@@ -58,9 +59,9 @@
   method) immediately, before accepting the next value from the
   iterator.  That is, you cannot hang on to past values from the
   iterator."
-  [this key values ^OutputCollector output reporter]
-  (let [sum (reduce + (map (fn [^LongWritable v] (.get v)) (iterator-seq values)))]
-    (.collect output key (LongWritable. sum))))
+  [this key values ^ReduceContext context]
+  (let [sum (reduce + (map (fn [^LongWritable v] (.get v)) values))]
+    (.write context key (LongWritable. sum))))
 
 (defn tool-run
   "This is our implementation of the Tool.run method.  args are the
@@ -71,19 +72,19 @@
   This method must return zero on success or Hadoop will report that
   the job failed."
   [^Tool this args]
-  (doto (JobConf. (.getConf this) (.getClass this))
+  (doto (Job.)
     (.setJobName "wordcount1")
     (.setOutputKeyClass Text)
     (.setOutputValueClass LongWritable)
     (.setMapperClass (Class/forName "clojure_hadoop.examples.wordcount1_mapper"))
     (.setReducerClass (Class/forName "clojure_hadoop.examples.wordcount1_reducer"))
-    (.setInputFormat TextInputFormat)
-    (.setOutputFormat TextOutputFormat)
+    (.setInputFormatClass TextInputFormat)
+    (.setOutputFormatClass TextOutputFormat)    
     (FileInputFormat/setInputPaths (first args))
     (FileOutputFormat/setOutputPath (Path. (second args)))
-    (JobClient/runJob))
+    (.waitForCompletion true))
   0)
 
-(deftest test-wordcount.1
+(deftest test-wordcount-1
   (.delete (FileSystem/get (Configuration.)) (Path. "tmp/out1") true)
   (tool-run (clojure_hadoop.job.) ["README.txt" "tmp/out1"]))
