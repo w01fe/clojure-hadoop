@@ -1,5 +1,5 @@
 (ns clojure-hadoop.gen
-  ;;^{:doc "Class-generation helpers for writing Hadoop jobs in Clojure."}
+  "Class-generation helpers for writing Hadoop jobs in Clojure."
   (:use [clojure-hadoop.imports :only (import-conf)]))
 
 (import-conf)
@@ -37,14 +37,12 @@
         :main true)
        (gen-class
         :name ~(str the-name "_mapper")
-        :extends "org.apache.hadoop.mapred.MapReduceBase"
-        :implements ["org.apache.hadoop.mapred.Mapper"]
+        :extends "org.apache.hadoop.mapreduce.Mapper"
         :prefix "mapper-"
         :main false)
        (gen-class
         :name ~(str the-name "_reducer")
-        :extends "org.apache.hadoop.mapred.MapReduceBase"
-        :implements ["org.apache.hadoop.mapred.Reducer"]
+        :extends "org.apache.hadoop.mapreduce.Reducer"
         :prefix "reducer-"
         :main false))))
 
@@ -67,7 +65,7 @@
   []
   `(do
      (defn ~'tool-getConf [~'_]
-       (or ~'clojure-hadoop.job/*jobconf* (Configuration.)))
+       (or ~'clojure-hadoop.job/*job* (Configuration.)))
      (defn ~'tool-setConf [~'_ ~'jobconf]
-       (clojure-hadoop.job/set-jobconf ~'jobconf))))
+       (clojure-hadoop.job/set-job ~'jobconf))))
 
