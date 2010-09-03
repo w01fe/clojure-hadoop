@@ -41,13 +41,13 @@
   "Preps the mapper or reducer with a Clojure function read from the
   job configuration.  Called from Mapper.configure and
   Reducer.configure."
-  [type ^Job job]
-  (set-job job)
-  (let [function (load/load-name (.get (configuration job) (str "clojure-hadoop.job." type)))
-        reader (if-let [v (.get (configuration job) (str "clojure-hadoop.job." type ".reader"))]
+  [type ^Configuration configuration]
+  ;; (set-job job)
+  (let [function (load/load-name (.get configuration (str "clojure-hadoop.job." type)))
+        reader (if-let [v (.get configuration (str "clojure-hadoop.job." type ".reader"))]
                  (load/load-name v)
                  (default-reader type))
-        writer (if-let [v (.get (configuration job) (str "clojure-hadoop.job." type ".writer"))]
+        writer (if-let [v (.get configuration (str "clojure-hadoop.job." type ".writer"))]
                  (load/load-name v)
                  wrap/clojure-writer)]
     (assert (fn? function))
@@ -67,18 +67,18 @@
 
 ;;; MAPPER METHODS
 
-(defn mapper-configure [this job]
-  (configure-functions "map" job))
+(defn mapper-setup [this context]
+  (configure-functions "map" (.getConfiguration context)))
 
-(defn mapper-map [this wkey wvalue output reporter]
+(defn mapper-map [this wkey wvalue context]
   (throw (Exception. "Mapper function not defined.")))
 
 ;;; REDUCER METHODS
 
-(defn reducer-configure [this job]
-  (configure-functions "reduce" job))
+(defn reducer-setup [this context]
+  (configure-functions "reduce" (.getConfiguration context)))
 
-(defn reducer-reduce [this wkey wvalues output reporter]
+(defn reducer-reduce [this wkey wvalues context]
   (throw (Exception. "Reducer function not defined.")))
 
 ;;; COMBINER METHODS
@@ -90,15 +90,15 @@
  :prefix "combiner-"
  :main false)
 
-(defn combiner-configure [this job]
-  (configure-functions "combiner" job))
+(defn combiner-setup [this context]
+  (configure-functions "combiner" (.getConfiguration context)))
 
 (defn combiner-reduce [this wkey wvalues output reporter]
   (throw (Exception. "Combiner function not defined.")))
 
 (defn- handle-replace-option [^Job job]
-  (when (= "true" (.get job "clojure-hadoop.job.replace"))
-    (let [fs (FileSystem/get job)
+  (when (= "true" (.get (configuration job) "clojure-hadoop.job.replace"))
+    (let [fs (FileSystem/get (configuration job))
           output (FileOutputFormat/getOutputPath job)]
       (.delete fs output true))))
 
@@ -109,8 +109,8 @@
     (.setOutputValueClass Text)
     (.setMapperClass (Class/forName "clojure_hadoop.job_mapper"))
     (.setReducerClass (Class/forName "clojure_hadoop.job_reducer"))
-    (.setInputFormat SequenceFileInputFormat)
-    (.setOutputFormat SequenceFileOutputFormat)
+    (.setInputFormatClass SequenceFileInputFormat)
+    (.setOutputFormatClass SequenceFileOutputFormat)
     (FileOutputFormat/setCompressOutput true)
     (SequenceFileOutputFormat/setOutputCompressionType
      SequenceFile$CompressionType/BLOCK)))
@@ -127,7 +127,8 @@
   ([job-fn]
      (run-job-fn (clojure_hadoop.job.) job-fn))
   ([tool job-fn]
-     (doto (Job. (.getConf tool) (.getClass tool))      
+     (doto (Job. (.getConf tool))
+       (.setJarByClass (.getClass tool))
        (set-default-config)
        (config/conf :job-fn job-fn)
        (run))))

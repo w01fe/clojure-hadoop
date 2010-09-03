@@ -8,9 +8,9 @@
   "Creates gen-class forms for Hadoop job classes from the current
   namespace. Now you only need to write three functions:
 
-  (defn mapper-map [this key value output reporter] ...)
+  (defn mapper-map [this key value mapper-context] ...)
 
-  (defn reducer-reduce [this key values output reporter] ...)
+  (defn reducer-reduce [this key values reducer-context] ...)
 
   (defn tool-run [& args] ...)
 
