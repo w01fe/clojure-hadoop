@@ -134,10 +134,9 @@
 
 (defn run
   "Runs a Hadoop job given the Job object."
-  [job]
-  (doto job
-    (handle-replace-option)
-    (.waitForCompletion true)))
+  [job]  
+  (handle-replace-option job)
+  (.waitForCompletion job true))
 
 (defn run-job-fn
   "Runs a Hadoop job given the job-fn."
