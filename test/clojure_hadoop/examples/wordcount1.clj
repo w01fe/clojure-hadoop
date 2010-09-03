@@ -73,6 +73,7 @@
   the job failed."
   [^Tool this args]
   (doto (Job.)
+    (.setJarByClass (.getClass this))
     (.setJobName "wordcount1")
     (.setOutputKeyClass Text)
     (.setOutputValueClass LongWritable)
