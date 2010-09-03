@@ -20,19 +20,19 @@
 (def ^Job *job* nil)
 
 (def ^{:private true} method-fn-name
-     {"map" "mapper-map"
-      "reduce" "reducer-reduce"
-      "combiner" "combiner-reduce"})
+  {"map" "mapper-map"
+   "reduce" "reducer-reduce"
+   "combiner" "combiner-reduce"})
 
 (def ^{:private true} wrapper-fn
-     {"map" wrap/wrap-map
-      "reduce" wrap/wrap-reduce
-      "combiner" wrap/wrap-reduce})
+  {"map" wrap/wrap-map
+   "reduce" wrap/wrap-reduce
+   "combiner" wrap/wrap-reduce})
 
 (def ^{:private true} default-reader
-     {"map" wrap/clojure-map-reader
-      "reduce" wrap/clojure-reduce-reader
-      "combiner" wrap/clojure-reduce-reader})
+  {"map" wrap/clojure-map-reader
+   "reduce" wrap/clojure-reduce-reader
+   "combiner" wrap/clojure-reduce-reader})
 
 (defn set-job [job]
   (alter-var-root (var *job*) (fn [_] job)))
@@ -59,27 +59,43 @@
 
 (defn- parse-command-line [job args]
   (try
-   (config/parse-command-line-args job args)
-   (catch Exception e
-     (prn e)
-     (config/print-usage)
-     (System/exit 1))))
+    (config/parse-command-line-args job args)
+    (catch Exception e
+      (prn e)
+      (config/print-usage)
+      (System/exit 1))))
 
 ;;; MAPPER METHODS
 
-(defn mapper-setup [this context]
-  (configure-functions "map" (.getConfiguration context)))
+(defn mapper-cleanup [this context]
+  (let [configuration (.getConfiguration context)]
+    (if-let [cleanup-fn-name (.get configuration config/map-cleanup)]
+      ((load/load-name cleanup-fn-name) context))))
 
 (defn mapper-map [this wkey wvalue context]
   (throw (Exception. "Mapper function not defined.")))
 
+(defn mapper-setup [this context]
+  (let [configuration (.getConfiguration context)]
+    (configure-functions "map" configuration)
+    (if-let [setup-fn-name (.get configuration config/map-setup)]
+      ((load/load-name setup-fn-name) context))))
+
 ;;; REDUCER METHODS
 
-(defn reducer-setup [this context]
-  (configure-functions "reduce" (.getConfiguration context)))
+(defn reducer-cleanup [this context]
+  (let [configuration (.getConfiguration context)]
+    (if-let [cleanup-fn-name (.get configuration config/reduce-cleanup)]
+      ((load/load-name cleanup-fn-name) context))))
 
 (defn reducer-reduce [this wkey wvalues context]
   (throw (Exception. "Reducer function not defined.")))
+
+(defn reducer-setup [this context]
+  (let [configuration (.getConfiguration context)]
+    (configure-functions "reduce" configuration)
+    (if-let [setup-fn-name (.get configuration config/reduce-setup)]
+      ((load/load-name setup-fn-name) context))))
 
 ;;; COMBINER METHODS
 

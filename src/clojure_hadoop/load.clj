@@ -10,4 +10,3 @@
       (require (symbol ns-name)))
     (assert (find-ns (symbol ns-name)))
     (deref (resolve (symbol ns-name fn-name)))))
-

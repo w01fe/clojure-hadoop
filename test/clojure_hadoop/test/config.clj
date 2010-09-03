@@ -45,6 +45,16 @@
     (conf job :map InverseMapper)
     (is (= (.getMapperClass job) InverseMapper))))
 
+(deftest test-conf-map-cleanup
+  (let [job (Job.)]
+    (conf job :map-cleanup "user/mapper-cleanup")
+    (is (= (.get (configuration job) "clojure-hadoop.job.map.cleanup") "user/mapper-cleanup"))))
+
+(deftest test-conf-map-setup
+  (let [job (Job.)]
+    (conf job :map-setup "user/mapper-setup")
+    (is (= (.get (configuration job) "clojure-hadoop.job.map.setup") "user/mapper-setup"))))
+
 (deftest test-conf-reduce
   (let [job (Job.)]
     (conf job :reduce 'identity)
@@ -55,6 +65,16 @@
   (let [job (Job.)]
     (conf job :reduce IntSumReducer)
     (is (= (.getReducerClass job) IntSumReducer))))
+
+(deftest test-conf-reduce-cleanup
+  (let [job (Job.)]
+    (conf job :reduce-cleanup "user/reduce-cleanup")
+    (is (= (.get (configuration job) "clojure-hadoop.job.reduce.cleanup") "user/reduce-cleanup"))))
+
+(deftest test-conf-reduce-setup
+  (let [job (Job.)]
+    (conf job :reduce-setup "user/reduce-setup")
+    (is (= (.get (configuration job) "clojure-hadoop.job.reduce.setup") "user/reduce-setup"))))
 
 (deftest test-conf-reduce-tasks
   (let [job (Job.)]

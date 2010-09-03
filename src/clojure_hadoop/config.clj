@@ -1,7 +1,8 @@
 (ns clojure-hadoop.config
   (:require [clojure-hadoop.imports :as imp]
             [clojure-hadoop.load :as load])
-  (:use [clojure.contrib.string :only [trim replace-re]]))
+  (:use [clojure.contrib.string :only [trim replace-re]]
+        [clojure.contrib.def :only [defvar]]))
 
 ;; This file defines configuration options for clojure-hadoop.
 ;;
@@ -23,6 +24,22 @@
 (imp/import-fs)
 (imp/import-mapreduce)
 (imp/import-mapreduce-lib)
+
+(defvar map-cleanup "clojure-hadoop.job.map.cleanup"
+  "The name of the property that stores the cleanup function name of
+  the mapper.")
+
+(defvar map-setup "clojure-hadoop.job.map.setup"
+  "The name of the property that stores the setup function name of the
+  mapper.")
+
+(defvar reduce-cleanup "clojure-hadoop.job.reduce.cleanup"
+  "The name of the property that stores the cleanup function name of
+  the reducer.")
+
+(defvar reduce-setup "clojure-hadoop.job.reduce.setup"
+  "The name of the property that stores the setup function name of the
+  reducer.")
 
 (defn- ^String as-str [s]
   (cond (keyword? s) (name s)
@@ -74,6 +91,18 @@
       :else
       (.setMapperClass job (Class/forName value)))))
 
+;; The name of the mapper cleanup function as namespace/symbol.
+(defmethod conf :map-cleanup [^Job job key value]
+  (let [value (as-str value)]
+    (if (.contains value "/")
+      (.set (configuration job) map-cleanup value))))
+
+;; The name of the mapper setup function as namespace/symbol.
+(defmethod conf :map-setup [^Job job key value]
+  (let [value (as-str value)]
+    (if (.contains value "/")
+      (.set (configuration job) map-setup value))))
+
 ;; The reducer function.  May be a class name or a Clojure function as
 ;; namespace/symbol.  May also be "identity" for IdentityReducer or
 ;; "none" for no reduce stage.
@@ -91,6 +120,18 @@
 
       :else
       (.setReducerClass job (Class/forName value)))))
+
+;; The name of the reducer cleanup function as namespace/symbol.
+(defmethod conf :reduce-cleanup [^Job job key value]
+  (let [value (as-str value)]
+    (if (.contains value "/")
+      (.set (configuration job) reduce-cleanup value))))
+
+;; The name of the reducer setup function as namespace/symbol.
+(defmethod conf :reduce-setup [^Job job key value]
+  (let [value (as-str value)]
+    (if (.contains value "/")
+      (.set (configuration job) reduce-setup value))))
 
 (defmethod conf :reduce-tasks [^Job job key value]
   (if (integer? value)
