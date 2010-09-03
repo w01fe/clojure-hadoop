@@ -4,18 +4,20 @@
             [clojure-hadoop.wrap :as wrap]
             [clojure-hadoop.config :as config]
             [clojure-hadoop.load :as load])
-  (:import (org.apache.hadoop.util Tool)))
+  (:import (org.apache.hadoop.util Tool))
+  (:use [clojure-hadoop.config :only (configuration)]))
 
 (imp/import-conf)
 (imp/import-io)
 (imp/import-io-compress)
 (imp/import-fs)
-(imp/import-mapred)
+(imp/import-mapreduce)
+(imp/import-mapreduce-lib)
 
 (gen/gen-job-classes)
 (gen/gen-main-method)
 
-(def ^JobConf *jobconf* nil)
+(def ^Job *job* nil)
 
 (def ^{:private true} method-fn-name
      {"map" "mapper-map"
@@ -32,20 +34,20 @@
       "reduce" wrap/clojure-reduce-reader
       "combiner" wrap/clojure-reduce-reader})
 
-(defn set-jobconf [jobconf]
-  (alter-var-root (var *jobconf*) (fn [_] jobconf)))
+(defn set-job [job]
+  (alter-var-root (var *job*) (fn [_] job)))
 
 (defn- configure-functions
   "Preps the mapper or reducer with a Clojure function read from the
   job configuration.  Called from Mapper.configure and
   Reducer.configure."
-  [type ^JobConf jobconf]
-  (set-jobconf jobconf)
-  (let [function (load/load-name (.get jobconf (str "clojure-hadoop.job." type)))
-        reader (if-let [v (.get jobconf (str "clojure-hadoop.job." type ".reader"))]
+  [type ^Job job]
+  (set-job job)
+  (let [function (load/load-name (.get (configuration job) (str "clojure-hadoop.job." type)))
+        reader (if-let [v (.get (configuration job) (str "clojure-hadoop.job." type ".reader"))]
                  (load/load-name v)
                  (default-reader type))
-        writer (if-let [v (.get jobconf (str "clojure-hadoop.job." type ".writer"))]
+        writer (if-let [v (.get (configuration job) (str "clojure-hadoop.job." type ".writer"))]
                  (load/load-name v)
                  wrap/clojure-writer)]
     (assert (fn? function))
@@ -55,9 +57,9 @@
 
 ;;; CREATING AND CONFIGURING JOBS
 
-(defn- parse-command-line [jobconf args]
+(defn- parse-command-line [job args]
   (try
-   (config/parse-command-line-args jobconf args)
+   (config/parse-command-line-args job args)
    (catch Exception e
      (prn e)
      (config/print-usage)
@@ -65,16 +67,16 @@
 
 ;;; MAPPER METHODS
 
-(defn mapper-configure [this jobconf]
-  (configure-functions "map" jobconf))
+(defn mapper-configure [this job]
+  (configure-functions "map" job))
 
 (defn mapper-map [this wkey wvalue output reporter]
   (throw (Exception. "Mapper function not defined.")))
 
 ;;; REDUCER METHODS
 
-(defn reducer-configure [this jobconf]
-  (configure-functions "reduce" jobconf))
+(defn reducer-configure [this job]
+  (configure-functions "reduce" job))
 
 (defn reducer-reduce [this wkey wvalues output reporter]
   (throw (Exception. "Reducer function not defined.")))
@@ -88,20 +90,20 @@
  :prefix "combiner-"
  :main false)
 
-(defn combiner-configure [this jobconf]
-  (configure-functions "combiner" jobconf))
+(defn combiner-configure [this job]
+  (configure-functions "combiner" job))
 
 (defn combiner-reduce [this wkey wvalues output reporter]
   (throw (Exception. "Combiner function not defined.")))
 
-(defn- handle-replace-option [^JobConf jobconf]
-  (when (= "true" (.get jobconf "clojure-hadoop.job.replace"))
-    (let [fs (FileSystem/get jobconf)
-          output (FileOutputFormat/getOutputPath jobconf)]
+(defn- handle-replace-option [^Job job]
+  (when (= "true" (.get job "clojure-hadoop.job.replace"))
+    (let [fs (FileSystem/get job)
+          output (FileOutputFormat/getOutputPath job)]
       (.delete fs output true))))
 
-(defn- set-default-config [^JobConf jobconf]
-  (doto jobconf
+(defn- set-default-config [^Job job]
+  (doto job
     (.setJobName "clojure_hadoop.job")
     (.setOutputKeyClass Text)
     (.setOutputValueClass Text)
@@ -114,18 +116,18 @@
      SequenceFile$CompressionType/BLOCK)))
 
 (defn run
-  "Runs a Hadoop job given the JobConf object."
-  [jobconf]
-  (doto jobconf
+  "Runs a Hadoop job given the Job object."
+  [job]
+  (doto job
     (handle-replace-option)
-    (JobClient/runJob)))
+    (.waitForCompletion true)))
 
 (defn run-job-fn
   "Runs a Hadoop job given the job-fn."
   ([job-fn]
      (run-job-fn (clojure_hadoop.job.) job-fn))
   ([tool job-fn]
-     (doto (JobConf. (.getConf tool) (.getClass tool))      
+     (doto (Job. (.getConf tool) (.getClass tool))      
        (set-default-config)
        (config/conf :job-fn job-fn)
        (run))))
@@ -135,7 +137,7 @@
 (gen/gen-conf-methods)
 
 (defn tool-run [^Tool this args]
-  (doto (JobConf. (.getConf this) (.getClass this))
+  (doto (Job. (.getConf this) (.getClass this))
     (set-default-config)
     (parse-command-line args)
     (run))
