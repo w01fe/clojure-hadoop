@@ -1,12 +1,12 @@
 (ns clojure-hadoop.wrap
-  ;;^{:doc "Map/Reduce wrappers that set up common input/output
-  ;;conversions for Clojure jobs."}
+  "Map/Reduce wrappers that set up common input/output conversions for
+Clojure jobs."
   (:require [clojure-hadoop.imports :as imp]))
 
 (imp/import-io)
-(imp/import-mapred)
+(imp/import-mapreduce)
 
-(declare ^Reporter *reporter*)
+(declare ^TaskInputOutputContext *context*)
 
 (defn string-map-reader
   "Returns a [key value] pair by calling .toString on the Writable key
@@ -34,9 +34,9 @@
 (defn clojure-writer
   "Sends key and value to the OutputCollector by calling pr-str on key
   and value and wrapping them in Hadoop Text objects."
-  [^OutputCollector output key value]
+  [^TaskInputOutputContext context key value]
   (binding [*print-dup* true]
-    (.collect output (Text. (pr-str key)) (Text. (pr-str value)))))
+    (.write context (Text. (pr-str key)) (Text. (pr-str value)))))
 
 (defn wrap-map
   "Returns a function implementing the Mapper.map interface.
@@ -46,7 +46,7 @@
   f must return a *sequence* of *pairs* like 
     [[key1 value1] [key2 value2] ...]
 
-  When f is called, *reporter* is bound to the Hadoop Reporter.
+  When f is called, *context* is bound to the Hadoop Reporter.
 
   reader is a function that receives the Writable key and value from
   Hadoop and returns a [key value] pair for f.
@@ -60,10 +60,10 @@
   ([f] (wrap-map f clojure-map-reader clojure-writer))
   ([f reader] (wrap-map f reader clojure-writer))
   ([f reader writer]
-     (fn [this wkey wvalue output reporter]
-       (binding [*reporter* reporter]
+     (fn [this wkey wvalue context]
+       (binding [*context* context]
          (doseq [pair (apply f (reader wkey wvalue))]
-           (apply writer output pair))))))
+           (apply writer context pair))))))
 
 (defn wrap-reduce
   "Returns a function implementing the Reducer.reduce interface.
@@ -75,7 +75,7 @@
   f must return a *sequence* of *pairs* like 
     [[key1 value1] [key2 value2] ...]
 
-  When f is called, *reporter* is bound to the Hadoop Reporter.
+  When f is called, *context* is bound to the Hadoop Reporter.
 
   reader is a function that receives the Writable key and value from
   Hadoop and returns a [key values-function] pair for f.
@@ -89,7 +89,7 @@
   ([f] (wrap-reduce f clojure-reduce-reader clojure-writer))
   ([f writer] (wrap-reduce f clojure-reduce-reader writer))
   ([f reader writer]
-     (fn [this wkey wvalues output reporter]
-       (binding [*reporter* reporter]
+     (fn [this wkey wvalues context]
+       (binding [*context* context]
          (doseq [pair (apply f (reader wkey wvalues))]
-           (apply writer output pair))))))
+           (apply writer context pair))))))
