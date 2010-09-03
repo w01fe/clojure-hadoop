@@ -5,7 +5,8 @@
             [clojure-hadoop.config :as config]
             [clojure-hadoop.load :as load])
   (:import (org.apache.hadoop.util Tool))
-  (:use [clojure-hadoop.config :only (configuration)]))
+  (:use [clojure.contrib.def :only (defvar-)]
+        [clojure-hadoop.config :only (configuration)]))
 
 (imp/import-conf)
 (imp/import-io)
@@ -19,17 +20,17 @@
 
 (def ^Job *job* nil)
 
-(def ^{:private true} method-fn-name
+(defvar- method-fn-name
   {"map" "mapper-map"
    "reduce" "reducer-reduce"
    "combiner" "combiner-reduce"})
 
-(def ^{:private true} wrapper-fn
+(defvar- wrapper-fn
   {"map" wrap/wrap-map
    "reduce" wrap/wrap-reduce
    "combiner" wrap/wrap-reduce})
 
-(def ^{:private true} default-reader
+(defvar- default-reader
   {"map" wrap/clojure-map-reader
    "reduce" wrap/clojure-reduce-reader
    "combiner" wrap/clojure-reduce-reader})
