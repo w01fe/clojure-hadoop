@@ -89,14 +89,21 @@
 
 (deftest test-conf-combine
   (let [job (Job.)]
-    (conf job :combine 'identity)
-    (is (= (.getCombinerClass job) Reducer)))
-  (let [job (Job.)]
     (conf job :combine "user/combiner-combine")
     (is (= (.get (configuration job) "clojure-hadoop.job.combine") "user/combiner-combine")))
   (let [job (Job.)]
     (conf job :combine IntSumReducer)
     (is (= (.getCombinerClass job) IntSumReducer))))
+
+(deftest test-conf-combine-cleanup
+  (let [job (Job.)]
+    (conf job :combine-cleanup "user/combine-cleanup")
+    (is (= (.get (configuration job) combine-cleanup) "user/combine-cleanup"))))
+
+(deftest test-conf-combine-setup
+  (let [job (Job.)]
+    (conf job :combine-setup "user/combine-setup")
+    (is (= (.get (configuration job) combine-setup) "user/combine-setup"))))
 
 (deftest test-conf-map-reader
   (let [job (Job.)]

@@ -23,17 +23,17 @@
 (defvar- method-fn-name
   {"map" "mapper-map"
    "reduce" "reducer-reduce"
-   "combiner" "combiner-reduce"})
+   "combine" "combiner-reduce"})
 
 (defvar- wrapper-fn
   {"map" wrap/wrap-map
    "reduce" wrap/wrap-reduce
-   "combiner" wrap/wrap-reduce})
+   "combine" wrap/wrap-reduce})
 
 (defvar- default-reader
   {"map" wrap/clojure-map-reader
    "reduce" wrap/clojure-reduce-reader
-   "combiner" wrap/clojure-reduce-reader})
+   "combine" wrap/clojure-reduce-reader})
 
 (defn set-job [job]
   (alter-var-root (var *job*) (fn [_] job)))
@@ -52,6 +52,8 @@
                  (load/load-name v)
                  wrap/clojure-writer)]
     (assert (fn? function))
+    (println type)
+    (println function)
     (alter-var-root (ns-resolve (the-ns 'clojure-hadoop.job)
                                 (symbol (method-fn-name type)))
                     (fn [_] ((wrapper-fn type) function reader writer)))))
@@ -100,18 +102,19 @@
 
 ;;; COMBINER METHODS
 
-(gen-class
- :name ~(str the-name "_combiner")
- :extends "org.apache.hadoop.mapred.MapReduceBase"
- :implements ["org.apache.hadoop.mapred.Reducer"]
- :prefix "combiner-"
- :main false)
+(defn combiner-cleanup [this context]
+  (let [configuration (.getConfiguration context)]
+    (if-let [cleanup-fn-name (.get configuration config/combine-cleanup)]
+      ((load/load-name cleanup-fn-name) context))))
+
+(defn combiner-reduce [this wkey wvalues context]
+  (throw (Exception. "Combiner function not defined.")))
 
 (defn combiner-setup [this context]
-  (configure-functions "combiner" (.getConfiguration context)))
-
-(defn combiner-reduce [this wkey wvalues output reporter]
-  (throw (Exception. "Combiner function not defined.")))
+  (let [configuration (.getConfiguration context)]
+    (configure-functions "combine" configuration)
+    (if-let [setup-fn-name (.get configuration config/combine-setup)]
+      ((load/load-name setup-fn-name) context))))
 
 (defn- handle-replace-option [^Job job]
   (when (= "true" (.get (configuration job) "clojure-hadoop.job.replace"))

@@ -44,6 +44,11 @@
         :name ~(str the-name "_reducer")
         :extends "org.apache.hadoop.mapreduce.Reducer"
         :prefix "reducer-"
+        :main false)
+       (gen-class
+        :name ~(str the-name "_combiner")
+        :extends "org.apache.hadoop.mapreduce.Reducer"
+        :prefix "combiner-"
         :main false))))
 
 (defn gen-main-method

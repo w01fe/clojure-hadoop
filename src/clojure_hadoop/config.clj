@@ -25,6 +25,14 @@
 (imp/import-mapreduce)
 (imp/import-mapreduce-lib)
 
+(defvar combine-cleanup "clojure-hadoop.job.combine.cleanup"
+  "The name of the property that stores the cleanup function name of
+  the combiner.")
+
+(defvar combine-setup "clojure-hadoop.job.combine.setup"
+  "The name of the property that stores the setup function name of the
+  combiner.")
+
 (defvar map-cleanup "clojure-hadoop.job.map.cleanup"
   "The name of the property that stores the cleanup function name of
   the mapper.")
@@ -144,14 +152,25 @@
 (defmethod conf :combine [^Job job key value]
   (let [value (as-str value)]
     (cond
-     (= "identity" value)
-     (.setCombinerClass job Reducer)
-
      (.contains value "/")      
-     (.set (configuration job) "clojure-hadoop.job.combine" value)
+     (do
+       (.setCombinerClass job (Class/forName "clojure_hadoop.job_combiner"))
+       (.set (configuration job) "clojure-hadoop.job.combine" value))
 
      :else
      (.setCombinerClass job (Class/forName value)))))
+
+;; The name of the combiner cleanup function as namespace/symbol.
+(defmethod conf :combine-cleanup [^Job job key value]
+  (let [value (as-str value)]
+    (if (.contains value "/")
+      (.set (configuration job) combine-cleanup value))))
+
+;; The name of the reducer setup function as namespace/symbol.
+(defmethod conf :combine-setup [^Job job key value]
+  (let [value (as-str value)]
+    (if (.contains value "/")
+      (.set (configuration job) combine-setup value))))
 
 ;; The mapper reader function, converts Hadoop Writable types to
 ;; native Clojure types.
