@@ -33,24 +33,21 @@
   (:import (java.util StringTokenizer))
   (:use clojure.test clojure-hadoop.job))
 
-(imp/import-io)  ;; for Text, LongWritable
-(imp/import-mapred)  ;; for OutputCollector
+(imp/import-io)
+(imp/import-mapreduce)
 
 (defn my-map [key value]
-  (map (fn [token] [token 1])
-       (enumeration-seq (StringTokenizer. value))))
+  (map (fn [token] [token 1]) (enumeration-seq (StringTokenizer. value))))
 
 (defn my-reduce [key values-fn]
   [[key (reduce + (values-fn))]])
 
-(defn string-long-writer [^OutputCollector output
-                          ^String key value]
-  (.collect output (Text. key) (LongWritable. value)))
+(defn string-long-writer [^TaskInputOutputContext context ^String key value]
+  (.write context (Text. key) (LongWritable. value)))
 
 (defn string-long-reduce-reader [^Text key wvalues]
   [(.toString key)
-   (fn [] (map (fn [^LongWritable v] (.get v))
-               (iterator-seq wvalues)))])
+   (fn [] (map (fn [^LongWritable v] (.get v)) wvalues))])
 
 (defjob/defjob job
   :map my-map
