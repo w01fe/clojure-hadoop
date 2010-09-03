@@ -28,8 +28,7 @@ Clojure jobs."
   string representations of the Writable key and values."
   [^Writable wkey wvalues]
   [(read-string (.toString wkey))
-   (fn [] (map (fn [^Writable v] (read-string (.toString v)))
-               (iterator-seq wvalues)))])
+   (fn [] (map (fn [^Writable v] (read-string (.toString v))) wvalues))])
 
 (defn clojure-writer
   "Sends key and value to the OutputCollector by calling pr-str on key

@@ -46,10 +46,11 @@
            (org.apache.hadoop.util Tool))
   (:use clojure.test))
 
-(imp/import-conf)   ;; Only for test
-(imp/import-io)     ;; for Text
-(imp/import-fs)     ;; for Path
-(imp/import-mapred) ;; for JobConf, JobClient
+(imp/import-conf)
+(imp/import-io)
+(imp/import-fs)
+(imp/import-mapreduce)
+(imp/import-mapreduce-lib)
 
 (gen/gen-job-classes)
 (gen/gen-main-method)
@@ -67,17 +68,18 @@
         [[key (reduce + (values-fn))]])))
 
 (defn tool-run [^Tool this args]
-  (doto (JobConf. (.getConf this) (.getClass this))
+  (doto (Job.)
+    (.setJarByClass (.getClass this))
     (.setJobName "wordcount2")
     (.setOutputKeyClass Text)
     (.setOutputValueClass Text)
     (.setMapperClass (Class/forName "clojure_hadoop.examples.wordcount2_mapper"))
     (.setReducerClass (Class/forName "clojure_hadoop.examples.wordcount2_reducer"))
-    (.setInputFormat TextInputFormat)
-    (.setOutputFormat TextOutputFormat)
+    (.setInputFormatClass TextInputFormat)
+    (.setOutputFormatClass TextOutputFormat)
     (FileInputFormat/setInputPaths ^String (first args))
     (FileOutputFormat/setOutputPath (Path. (second args)))
-    (JobClient/runJob))
+    (.waitForCompletion true))
   0)
 
 (deftest test-wordcount-2  
