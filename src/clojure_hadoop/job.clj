@@ -52,8 +52,6 @@
                  (load/load-name v)
                  wrap/clojure-writer)]
     (assert (fn? function))
-    (println type)
-    (println function)
     (alter-var-root (ns-resolve (the-ns 'clojure-hadoop.job)
                                 (symbol (method-fn-name type)))
                     (fn [_] ((wrapper-fn type) function reader writer)))))
