@@ -1,12 +1,11 @@
 (ns clojure-hadoop.wrap
   "Map/Reduce wrappers that set up common input/output conversions for
 Clojure jobs."
-  (:require [clojure-hadoop.imports :as imp]))
+  (:use [clojure-hadoop.context :only (*context*)]
+        [clojure-hadoop.imports :only (import-io import-mapreduce)]))
 
-(imp/import-io)
-(imp/import-mapreduce)
-
-(declare ^TaskInputOutputContext *context*)
+(import-io)
+(import-mapreduce)
 
 (defn string-map-reader
   "Returns a [key value] pair by calling .toString on the Writable key

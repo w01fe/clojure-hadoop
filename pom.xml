@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>clojure-hadoop</groupId>
   <artifactId>clojure-hadoop</artifactId>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>1.3.1-SNAPSHOT</version>
   <name>clojure-hadoop</name>
   <description>Library to aid writing Hadoop jobs in Clojure.</description>
   <url>http://github.com/alexott/clojure-hadoop</url>
@@ -18,7 +18,7 @@
   <scm>
     <connection>scm:git:git://github.com/alexott/clojure-hadoop.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/alexott/clojure-hadoop.git</developerConnection>
-    <tag>01b0d18428420248c35773ab4a36b45eb734dff5</tag>
+    <tag>b27a811455a9d56a6425c94d0b4f4ba489659501</tag>
     <url>http://github.com/alexott/clojure-hadoop</url>
   </scm>
   <build>
