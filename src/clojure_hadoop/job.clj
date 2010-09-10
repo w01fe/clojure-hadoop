@@ -155,7 +155,8 @@
 (gen/gen-conf-methods)
 
 (defn tool-run [^Tool this args]
-  (doto (Job. (.getConf this) (.getClass this))
+  (doto (Job. (.getConf this))
+    (.setJarByClass (.getClass this))
     (set-default-config)
     (parse-command-line args)
     (run))
