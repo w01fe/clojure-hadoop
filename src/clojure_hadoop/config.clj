@@ -294,7 +294,7 @@
   (when-not (even? (count args))
     (throw (IllegalArgumentException. "Number of options must be even.")))
   (doseq [[k v] (partition 2 args)]
-    (conf job (keyword (replace-re #"^:" "" k)) v))
+    (conf job (keyword (replace-re #"^:|-" "" k)) v))
 
   (defn print-usage []
     (println "Usage: java -cp [jars...] clojure_hadoop.job [options...]
