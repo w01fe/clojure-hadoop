@@ -20,3 +20,6 @@
   "Set the current status of the task to the given message."
   [message] (if *context* (.setStatus *context* message)))
 
+(defmacro with-context [context & body]
+  `(binding [clojure-hadoop.context/*context* ~context]
+     ~@body))
