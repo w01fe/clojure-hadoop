@@ -62,12 +62,10 @@
 (defmulti conf (fn [job key value] key))
 
 (defmethod conf :job [^Job job key value]
-  (let [f (load/load-name value)]
-    (conf job :job-fn f)))
-
-(defmethod conf :job-fn [^Job job key value]  
-  (doseq [[k v] (value)]
-    (conf job k v)))
+  (cond
+   (string? value) (conf job :job (load/load-name value))
+   (fn? value) (conf job :job (value))
+   :else (doseq [[k v] value] (conf job k v))))
 
 (defmethod conf :name [^Job job key value]  
   (.setJobName job value))

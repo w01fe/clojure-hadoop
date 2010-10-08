@@ -62,12 +62,12 @@
   [[key (reduce + (values-fn))]])
 
 (deftest test-wordcount-3
-  (is (run-job-fn (fn []
-                    {:map "clojure-hadoop.examples.wordcount3/my-map"
-                     :map-reader "clojure-hadoop.wrap/int-string-map-reader"
-                     :combine "clojure-hadoop.examples.wordcount3/my-combine"
-                     :reduce "clojure-hadoop.examples.wordcount3/my-reduce"
-                     :input-format "text"
-                     :input "README.txt"
-                     :output "tmp/out3"
-                     :replace "true"}))))
+  (is (run 
+       {:map "clojure-hadoop.examples.wordcount3/my-map"
+        :map-reader "clojure-hadoop.wrap/int-string-map-reader"
+        :combine "clojure-hadoop.examples.wordcount3/my-combine"
+        :reduce "clojure-hadoop.examples.wordcount3/my-reduce"
+        :input-format "text"
+        :input "README.txt"
+        :output "tmp/out3"
+        :replace "true"})))

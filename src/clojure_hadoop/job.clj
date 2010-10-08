@@ -15,10 +15,9 @@
 (imp/import-mapreduce)
 (imp/import-mapreduce-lib)
 
-(gen/gen-job-classes)
-(gen/gen-main-method)
-
 (def ^Job *job* nil)
+
+(gen/gen-job-classes)
 
 (defvar- method-fn-name
   {"map" "mapper-map"
@@ -134,25 +133,21 @@
      SequenceFile$CompressionType/BLOCK)))
 
 (defn run
-  "Runs a Hadoop job given the Job object."
-  [job]  
-  (handle-replace-option job)
-  (.waitForCompletion job true))
-
-(defn run-job-fn
-  "Runs a Hadoop job given the job-fn."
-  ([job-fn]
-     (run-job-fn (clojure_hadoop.job.) job-fn))
-  ([tool job-fn]
+  "Runs a Hadoop job given the job configuration map/fn."
+  ([job]
+     (run (clojure_hadoop.job.) job))
+  ([tool job]
      (doto (Job. (.getConf tool))
        (.setJarByClass (.getClass tool))
        (set-default-config)
-       (config/conf :job-fn job-fn)
-       (run))))
+       (config/conf :job job)
+       (handle-replace-option)
+       (.waitForCompletion true))))
 
 ;;; TOOL METHODS
 
 (gen/gen-conf-methods)
+(gen/gen-main-method)
 
 (defn tool-run [^Tool this args]
   (doto (Job. (.getConf this))

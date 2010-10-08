@@ -66,4 +66,4 @@
   :replace true)
 
 (deftest test-wordcount-5
-  (is (run-job-fn job)))
+  (is (run job)))
