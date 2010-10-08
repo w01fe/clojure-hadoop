@@ -11,6 +11,13 @@
 (deftest test-configuration
   (is (isa? (class (configuration (Job.))) Configuration)))
 
+(deftest test-conf-job
+  (testing "with a full qualified function name"
+    (let [job (Job.)]    
+      (defn my-job [] {:name "My Job"})
+      (conf job :job "clojure-hadoop.test.config/my-job")
+      (is (= (.getJobName job) "My Job")))))
+
 (deftest test-conf-name
   (let [job (Job.)]
     (conf job :name "My Job")
