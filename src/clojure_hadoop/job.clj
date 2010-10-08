@@ -6,7 +6,8 @@
             [clojure-hadoop.load :as load])
   (:import (org.apache.hadoop.util Tool))
   (:use [clojure.contrib.def :only (defvar-)]
-        [clojure-hadoop.config :only (configuration)]))
+        [clojure-hadoop.config :only (configuration)]
+        [clojure-hadoop.context :only (with-context)]))
 
 (imp/import-conf)
 (imp/import-io)
@@ -68,50 +69,56 @@
 ;;; MAPPER METHODS
 
 (defn mapper-cleanup [this context]
-  (let [configuration (.getConfiguration context)]
-    (if-let [cleanup-fn-name (.get configuration config/map-cleanup)]
-      ((load/load-name cleanup-fn-name) context))))
+  (with-context context
+    (let [configuration (.getConfiguration context)]
+      (if-let [cleanup-fn-name (.get configuration config/map-cleanup)]
+        ((load/load-name cleanup-fn-name) context)))))
 
 (defn mapper-map [this wkey wvalue context]
   (throw (Exception. "Mapper function not defined.")))
 
 (defn mapper-setup [this context]
-  (let [configuration (.getConfiguration context)]
-    (configure-functions "map" configuration)
-    (if-let [setup-fn-name (.get configuration config/map-setup)]
-      ((load/load-name setup-fn-name) context))))
+  (with-context context
+    (let [configuration (.getConfiguration context)]
+      (configure-functions "map" configuration)
+      (if-let [setup-fn-name (.get configuration config/map-setup)]
+        ((load/load-name setup-fn-name) context)))))
 
 ;;; REDUCER METHODS
 
 (defn reducer-cleanup [this context]
-  (let [configuration (.getConfiguration context)]
-    (if-let [cleanup-fn-name (.get configuration config/reduce-cleanup)]
-      ((load/load-name cleanup-fn-name) context))))
+  (with-context context
+    (let [configuration (.getConfiguration context)]
+      (if-let [cleanup-fn-name (.get configuration config/reduce-cleanup)]
+        ((load/load-name cleanup-fn-name) context)))))
 
 (defn reducer-reduce [this wkey wvalues context]
   (throw (Exception. "Reducer function not defined.")))
 
 (defn reducer-setup [this context]
-  (let [configuration (.getConfiguration context)]
-    (configure-functions "reduce" configuration)
-    (if-let [setup-fn-name (.get configuration config/reduce-setup)]
-      ((load/load-name setup-fn-name) context))))
+  (with-context context
+    (let [configuration (.getConfiguration context)]
+      (configure-functions "reduce" configuration)
+      (if-let [setup-fn-name (.get configuration config/reduce-setup)]
+        ((load/load-name setup-fn-name) context)))))
 
 ;;; COMBINER METHODS
 
 (defn combiner-cleanup [this context]
-  (let [configuration (.getConfiguration context)]
-    (if-let [cleanup-fn-name (.get configuration config/combine-cleanup)]
-      ((load/load-name cleanup-fn-name) context))))
+  (with-context context
+    (let [configuration (.getConfiguration context)]
+      (if-let [cleanup-fn-name (.get configuration config/combine-cleanup)]
+        ((load/load-name cleanup-fn-name) context)))))
 
 (defn combiner-reduce [this wkey wvalues context]
   (throw (Exception. "Combiner function not defined.")))
 
 (defn combiner-setup [this context]
-  (let [configuration (.getConfiguration context)]
-    (configure-functions "combine" configuration)
-    (if-let [setup-fn-name (.get configuration config/combine-setup)]
-      ((load/load-name setup-fn-name) context))))
+  (with-context context
+    (let [configuration (.getConfiguration context)]
+      (configure-functions "combine" configuration)
+      (if-let [setup-fn-name (.get configuration config/combine-setup)]
+        ((load/load-name setup-fn-name) context)))))
 
 (defn- handle-replace-option [^Job job]
   (when (= "true" (.get (configuration job) "clojure-hadoop.job.replace"))
