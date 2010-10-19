@@ -127,6 +127,7 @@
       (.delete fs output true))))
 
 (defn- set-default-config [^Job job]
+  (println "Setting default configuration")
   (doto job
     (.setJobName "clojure_hadoop.job")
     (.setOutputKeyClass Text)
@@ -144,10 +145,8 @@
   ([job]
      (run (clojure_hadoop.job.) job))
   ([tool job]
-     (doto (Job. (.getConf tool))
-       (.setJarByClass (.getClass tool))
-       (set-default-config)
-       (config/conf :job job)
+     (println "Running clojure-hadoop.job/run")
+     (doto job 
        (handle-replace-option)
        (.waitForCompletion true))))
 
@@ -157,6 +156,7 @@
 (gen/gen-main-method)
 
 (defn tool-run [^Tool this args]
+  (println "Running clojure-hadoop.job/tool-run")
   (doto (Job. (.getConf this))
     (.setJarByClass (.getClass this))
     (set-default-config)
