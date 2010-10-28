@@ -155,11 +155,27 @@
 (gen/gen-conf-methods)
 (gen/gen-main-method)
 
+(defn get-classpath []
+  (map (fn [url] (.getFile url))
+       (.getURLs (java.net.URLClassLoader/getSystemClassLoader))))
+
 (defn tool-run [^Tool this args]
   (println "Running clojure-hadoop.job/tool-run")
   (doto (Job. (.getConf this))
     (.setJarByClass (.getClass this))
     (set-default-config)
     (parse-command-line args)
+;;    (println (get-classpath))
     (run))
+  0)
+
+(defn interactive [job args]
+  (let [this (clojure_hadoop.job.)
+	obj (Job. (.getConf this))]
+    (doto obj
+      (.setJarByClass (.getClass this))
+      (set-default-config)
+      (parse-command-line args))
+;;    (swank.core/break)
+    (run obj))
   0)

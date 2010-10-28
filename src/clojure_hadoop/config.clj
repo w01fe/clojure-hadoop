@@ -67,7 +67,14 @@
    (fn? value) (conf job :job (value))
    :else (doseq [[k v] value] (conf job k v))))
 
-(defmethod conf :name [^Job job key value]  
+(defn- set-parameters [^Job job params]
+  (doseq [[param value] params]
+    (.set (configuration job) param value)))
+
+(defmethod conf :params [^Job job key params]
+  (set-parameters job (var-get (resolve (read-string params)))))
+
+(defmethod conf :name [^Job job key value]
   (.setJobName job value))
 
 ;; Job input paths, separated by commas, as a String.
