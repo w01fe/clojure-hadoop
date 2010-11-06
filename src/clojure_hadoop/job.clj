@@ -16,7 +16,7 @@
 (imp/import-mapreduce)
 (imp/import-mapreduce-lib)
 
-(def ^Job *job* nil)
+(def ^Configuration *config* nil)
 
 (gen/gen-job-classes)
 
@@ -35,15 +35,15 @@
    "reduce" wrap/clojure-reduce-reader
    "combine" wrap/clojure-reduce-reader})
 
-(defn set-job [job]
-  (alter-var-root (var *job*) (fn [_] job)))
+(defn set-config [config]
+  (alter-var-root (var *config*) (fn [_] config)))
 
 (defn- configure-functions
   "Preps the mapper or reducer with a Clojure function read from the
   job configuration.  Called from Mapper.configure and
   Reducer.configure."
   [type ^Configuration configuration]
-  ;; (set-job job)
+  (set-config configuration)
   (let [function (load/load-name (.get configuration (str "clojure-hadoop.job." type)))
         reader (if-let [v (.get configuration (str "clojure-hadoop.job." type ".reader"))]
                  (load/load-name v)
@@ -143,13 +143,14 @@
   "Runs a Hadoop job given the job configuration map/fn."
   ([job]
      (run (clojure_hadoop.job.) job))
-  ([tool job]
-     (doto (Job. (.getConf tool))
-       (.setJarByClass (.getClass tool))
-       (set-default-config)
-       (config/conf :job job)
-       (handle-replace-option)
-       (.waitForCompletion true))))
+  ([tool job]     
+     (let [config (.getConf tool)]
+       (doto (Job. config)
+        (.setJarByClass (.getClass tool))
+        (set-default-config)
+        (config/conf :job job)
+        (handle-replace-option)
+        (.waitForCompletion true)))))
 
 ;;; TOOL METHODS
 
