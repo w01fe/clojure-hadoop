@@ -45,9 +45,6 @@
 (defn buffered-writer [path]
   (BufferedWriter. (OutputStreamWriter. (output-stream path))))
 
-(defn buffered-writer [path]  
-  (BufferedWriter. (OutputStreamWriter. (output-stream path))))
-
 (defn default-filesystem []
   (filesystem (. (Configuration.) get "fs.default.name")))
 
