@@ -122,8 +122,8 @@
 
 (defn- handle-replace-option [^Job job]
   (when (= "true" (.get (configuration job) "clojure-hadoop.job.replace"))
-    (let [fs (FileSystem/get (configuration job))
-          output (FileOutputFormat/getOutputPath job)]
+    (let [output (FileOutputFormat/getOutputPath job)
+          fs (FileSystem/get (.toUri output) (configuration job))]
       (.delete fs output true))))
 
 (defn- set-default-config [^Job job]
