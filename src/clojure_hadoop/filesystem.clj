@@ -1,4 +1,4 @@
-(ns clojure-hadoop.io
+(ns clojure-hadoop.filesystem
   (:import [java.io BufferedReader BufferedWriter InputStreamReader OutputStreamWriter])
   (:use [clojure.contrib.def :only (defvar)]
         clojure-hadoop.imports))
