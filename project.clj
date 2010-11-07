@@ -7,9 +7,9 @@
             :comments "Same license as Clojure"}
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]
-                 [org.apache.hadoop/hadoop-core "0.20.2"]
                  [log4j/log4j "1.2.16"]]
-  :dev-dependencies [[swank-clojure "1.2.1"]]
+  :dev-dependencies [[swank-clojure "1.2.1"]
+                     [org.apache.hadoop/hadoop-core "0.20.2"]]
   :aot [clojure-hadoop.config
         clojure-hadoop.defjob
         clojure-hadoop.gen
