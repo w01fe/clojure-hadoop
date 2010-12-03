@@ -5,11 +5,11 @@
             :url "http://opensource.org/licenses/eclipse-1.0.php"
             :distribution "repo"
             :comments "Same license as Clojure"}
-  :dependencies [[org.clojure/clojure "1.2.0"]
+  :dependencies [[org.apache.hadoop/hadoop-core "0.20.2"]
+                 [org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]
                  [log4j/log4j "1.2.16"]]
-  :dev-dependencies [[swank-clojure "1.2.1"]
-                     [org.apache.hadoop/hadoop-core "0.20.2"]]
+  :dev-dependencies [[swank-clojure "1.2.1"]]
   :aot [clojure-hadoop.config
         clojure-hadoop.defjob
         clojure-hadoop.gen
@@ -18,5 +18,5 @@
         clojure-hadoop.load
         clojure-hadoop.wrap
         ;; TODO: Remove them? Only needed for the tests.
-        clojure-hadoop.examples.wordcount1 
+        clojure-hadoop.examples.wordcount1
         clojure-hadoop.examples.wordcount2])
