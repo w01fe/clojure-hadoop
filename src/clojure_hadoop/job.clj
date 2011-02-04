@@ -3,8 +3,12 @@
             [clojure-hadoop.imports :as imp]
             [clojure-hadoop.wrap :as wrap]
             [clojure-hadoop.config :as config]
-            [clojure-hadoop.load :as load])
-  (:import (org.apache.hadoop.util Tool))
+            [clojure-hadoop.load :as load]
+	    [clojure.stacktrace])
+  (:import (org.apache.hadoop.util Tool)
+	   (org.apache.hadoop.filecache DistributedCache)
+	   (org.apache.hadoop.fs Path)
+	   (java.io File))
   (:use [clojure.contrib.def :only (defvar-)]
         [clojure-hadoop.config :only (configuration)]
         [clojure-hadoop.context :only (with-context)]))
@@ -59,10 +63,12 @@
 ;;; CREATING AND CONFIGURING JOBS
 
 (defn- parse-command-line [job args]
+  (println "Parsing command line")
   (try
     (config/parse-command-line-args job args)
     (catch Exception e
       (prn e)
+      (clojure.stacktrace/print-cause-trace e)
       (config/print-usage)
       (System/exit 1))))
 
@@ -159,13 +165,23 @@
   (map (fn [url] (.getFile url))
        (.getURLs (java.net.URLClassLoader/getSystemClassLoader))))
 
+(defn configure-distributed-cache [job]
+  (println "Loading distributed cache")
+  (let [dir (new File "/home/hadoop/libcl")]
+    (if (.exists dir)
+      (doall
+       (map (fn [fname]
+	      (DistributedCache/addFileToClassPath
+	       (new Path (str "/libcl/" fname)) job))
+	    (.list dir))))))
+
 (defn tool-run [^Tool this args]
-  (println "Running clojure-hadoop.job/tool-run")
+  (println "Entering clojure-hadoop.job/tool-run")
   (doto (Job. (.getConf this))
     (.setJarByClass (.getClass this))
     (set-default-config)
+    (configure-distributed-cache)
     (parse-command-line args)
-;;    (println (get-classpath))
     (run))
   0)
 
