@@ -74,6 +74,12 @@
 (defmethod conf :params [^Job job key params]
   (set-parameters job (var-get (resolve (read-string params)))))
 
+;; Modify the job or configuration 
+(defmethod conf :configure [^Job job key fname]
+  (println "Running configuration function " fname)
+  (println job)
+  ((load/load-name fname) job))
+
 (defmethod conf :name [^Job job key value]
   (.setJobName job value))
 
@@ -299,10 +305,10 @@
   (when-not (even? (count args))
     (throw (IllegalArgumentException. "Number of options must be even.")))
   (doseq [[k v] (partition 2 args)]
-    (conf job (keyword (replace-re #"^:|-" "" k)) v))
+    (conf job (keyword (replace-re #"^:|-" "" k)) v)))
 
-  (defn print-usage []
-    (println "Usage: java -cp [jars...] clojure_hadoop.job [options...]
+(defn print-usage []
+  (println "Usage: java -cp [jars...] clojure_hadoop.job [options...]
 Required options are:
  -input     comma-separated input paths
  -output    output path
@@ -333,5 +339,5 @@ Other available options are:
  -compress-output   If \"true\", compress job output files
  -output-compressor Compression class or \"gzip\",\"bzip2\",\"default\"
  -compression-type  For seqfiles, compress \"block\",\"record\",\"none\"
-")))
+"))
 
