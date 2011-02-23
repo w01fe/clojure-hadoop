@@ -13,7 +13,7 @@
   <scm>
     <connection>scm:git:git://github.com/eslick/clojure-hadoop.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/eslick/clojure-hadoop.git</developerConnection>
-    <tag>c76cd7446f90b06ea3f6d9baf135b0999f3b4d9e</tag>
+    <tag>d2e14f9fd7d9b041edf8026ff8fef112c511feb7</tag>
     <url>https://github.com/eslick/clojure-hadoop</url>
   </scm>
   <build>

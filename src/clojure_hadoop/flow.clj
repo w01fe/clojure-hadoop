@@ -180,8 +180,8 @@
 	  true
 	  (do (Thread/sleep 5000)
 	      (recur))))
-    (if-let [hook (:post-hook job-config)]
-      (apply hook job)
+    (if-let [hook-name (:post-hook job-config)]
+      (apply (load/load-name hook-name) job)
       (.isSuccessful job))))
 
 (defmacro define-flow
@@ -260,7 +260,7 @@
   (assert (and (string? run-type) (string? name) (= (first run-type) \-)))
   (let [obj (load/load-name name)]
     (case run-type
-	  "-job" (apply clojure-hadoop.job/tool-main args)
+;;	  "-job" (apply clojure-hadoop.job/tool-main args)
 	  "-step" (apply do-step obj (parse-args args))
 	  "-flow" (run-flow obj (parse-args args)))))
 	 
