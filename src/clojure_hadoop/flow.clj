@@ -260,7 +260,7 @@
   (assert (and (string? run-type) (string? name) (= (first run-type) \-)))
   (let [obj (load/load-name name)]
     (case run-type
-	  "-job" (apply clojure-hadoop.job/tool-main args)
+;;	  "-job" (apply clojure-hadoop.job/tool-main args)
 	  "-step" (apply do-step obj (parse-args args))
 	  "-flow" (run-flow obj (parse-args args)))))
 	 
