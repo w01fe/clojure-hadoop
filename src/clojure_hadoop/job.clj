@@ -5,10 +5,7 @@
             [clojure-hadoop.config :as config]
             [clojure-hadoop.load :as load]
 	    [clojure.stacktrace])
-  (:import (org.apache.hadoop.util Tool)
-	   (org.apache.hadoop.filecache DistributedCache)
-	   (org.apache.hadoop.fs Path)
-	   (java.io File))
+  (:import (org.apache.hadoop.util Tool))
   (:use [clojure.contrib.def :only (defvar-)]
         [clojure-hadoop.config :only (configuration)]
         [clojure-hadoop.context :only (with-context)]))
@@ -66,7 +63,6 @@
   (try
     (config/parse-command-line-args job args)
     (catch Exception e
-      (prn e)
       (clojure.stacktrace/print-cause-trace e)
       (config/print-usage)
       (System/exit 1))))
@@ -144,43 +140,58 @@
     (SequenceFileOutputFormat/setOutputCompressionType
      SequenceFile$CompressionType/BLOCK)))
 
+(def *job-customization* nil)
+
+(defmacro with-job-customization
+  "This binding macro allows us to de-couple the library jar that
+   clojure-hadoop is in from the jar that hosts the application logic
+   for situations where we are not building uberjars and have
+   libraries on the distributed cache classpath :name sets the
+   job name and :jar-class is used to set the classpath"
+  [map & body]
+  (assert (map? map))				  
+  `(binding [*job-customization* ~map]
+     ~@body))
+
+(defn- job-name []
+  (or (:name *job-customization*) "clojure-hadoop.job"))
+
+(defn- jar-class [default]
+  (or (:jar-class *job-customization*) default))
+
+;;
+;; Allow wait-for-completion as well as a batch submission based on config
+;;
+
+(defn- submit-job [#^Job job]
+  (handle-replace-option job)
+  (let [batch?  (= "true" (.get (configuration job) "clojure-hadoop.job.batch"))]
+    (if batch?
+      (.submit job)
+      (.waitForCompletion job true))))
+
 (defn run
   "Runs a Hadoop job given the job configuration map/fn."
-  ([job]
+  ([job] 
      (run (clojure_hadoop.job.) job))
-  ([tool job]     
-     (let [config (.getConf tool)]
-       (doto (Job. config)
-        (.setJarByClass (.getClass tool))
-        (set-default-config)
-        (config/conf :job job)
-        (handle-replace-option)
-        (.waitForCompletion true)))))
+  ([tool job] 
+     (doto (Job. (.getConf tool))
+       (.setJarByClass (jar-class (.getClass tool)))
+       (set-default-config)
+       (.setJobName (job-name))
+       (config/conf :job job)
+       (submit-job))))
 
 ;;; TOOL METHODS
 
 (gen/gen-conf-methods)
 (gen/gen-main-method)
 
-(defn get-classpath []
-  (map (fn [url] (.getFile url))
-       (.getURLs (java.net.URLClassLoader/getSystemClassLoader))))
-
-(defn configure-distributed-cache [job]
-  (println "Loading distributed cache")
-  (let [dir (new File "/home/hadoop/libcl")]
-    (if (.exists dir)
-      (doall
-       (map (fn [fname]
-	      (DistributedCache/addFileToClassPath
-	       (new Path (str "/libcl/" fname)) job))
-	    (.list dir))))))
-
 (defn tool-run [^Tool this args]
   (doto (Job. (.getConf this))
-    (.setJarByClass (.getClass this))
+    (.setJarByClass (jar-class (.getClass this)))
     (set-default-config)
-    (configure-distributed-cache)
+    (.setJobName (job-name))
     (parse-command-line args)
-    (run))
+    (submit-job))
   0)

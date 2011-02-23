@@ -63,6 +63,7 @@
 
 (defmethod conf :job [^Job job key value]
   (cond
+   (nil? value) (throw (IllegalArgumentException. (format "Job %s not found" value)))
    (string? value) (conf job :job (load/load-name value))
    (fn? value) (conf job :job (value))
    :else (doseq [[k v] value] (conf job k v))))
@@ -75,10 +76,11 @@
   (set-parameters job (var-get (resolve (read-string params)))))
 
 ;; Modify the job or configuration 
-(defmethod conf :configure [^Job job key fname]
-  (println "Running configuration function " fname)
-  (println job)
-  ((load/load-name fname) job))
+(defmethod conf :configure [^Job job key fnames]
+  (doseq [fname (if (sequential? fnames) fnames (list fnames))]
+    (if (fn? fname)
+      (fname job)
+      ((load/load-name fname) job))))
 
 (defmethod conf :name [^Job job key value]
   (.setJobName job value))
@@ -299,6 +301,13 @@
      (SequenceFileOutputFormat/setOutputCompressionType
       job SequenceFile$CompressionType/RECORD))))
 
+(defmethod conf :batch [^Job job key value]
+  (let [val (as-str value)]
+    (cond (= val "true")
+	  (.set (configuration job) "clojure-hadoop.job.batch" "true")
+	  (= val "false")
+	  (.set (configuration job) "clojure-hadoop.job.batch" "false"))))
+
 (defn parse-command-line-args [^Job job args]
   (when (empty? args)
     (throw (IllegalArgumentException. "Missing required options.")))
@@ -339,5 +348,6 @@ Other available options are:
  -compress-output   If \"true\", compress job output files
  -output-compressor Compression class or \"gzip\",\"bzip2\",\"default\"
  -compression-type  For seqfiles, compress \"block\",\"record\",\"none\"
+ -batch             If \"false\" (default), run interactively, else 'submit'
 "))
 
