@@ -13,7 +13,11 @@
   <scm>
     <connection>scm:git:git://github.com/eslick/clojure-hadoop.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/eslick/clojure-hadoop.git</developerConnection>
+<<<<<<< HEAD:pom.xml
     <tag>2b4841e64f3e2f80b2748bdee8cf491870e81584</tag>
+=======
+    <tag>d2e14f9fd7d9b041edf8026ff8fef112c511feb7</tag>
+>>>>>>> 8c92dd29a402f819a34f0cb59ea76aa184e624ed:pom.xml
     <url>https://github.com/eslick/clojure-hadoop</url>
   </scm>
   <build>
