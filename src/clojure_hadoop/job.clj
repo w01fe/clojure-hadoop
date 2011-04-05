@@ -59,7 +59,7 @@
 
 ;;; CREATING AND CONFIGURING JOBS
 
-(defn- parse-command-line [job args]
+(defn parse-command-line [job args]
   (try
     (config/parse-command-line-args job args)
     (catch Exception e
@@ -164,6 +164,7 @@
 ;;
 
 (defn- submit-job [#^Job job]
+  (println job)
   (handle-replace-option job)
   (let [batch?  (= "true" (.get (configuration job) "clojure-hadoop.job.batch"))]
     (if batch?
@@ -179,6 +180,22 @@
        (.setJarByClass (jar-class (.getClass tool)))
        (set-default-config)
        (.setJobName (job-name))
+       (config/conf :job job)
+       (submit-job))))
+
+(defn run-with-args
+  "Runs a clojure-hadoop job given a seq of command line
+   arguments, helpful as a proxy to call from flow.clj"
+  ([job args]
+     (println args)
+     (run-with-args (clojure_hadoop.job.) job args))
+  ([tool job args]
+     (doto (Job. (.getConf tool))
+       (println)
+       (.setJarByClass (jar-class (.getClass tool)))
+       (set-default-config)
+       (.setJobName (job-name))
+       (parse-command-line args)
        (config/conf :job job)
        (submit-job))))
 

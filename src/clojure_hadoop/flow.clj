@@ -181,7 +181,7 @@
 	  (do (Thread/sleep 5000)
 	      (recur))))
     (if-let [hook-name (:post-hook job-config)]
-      (apply (load/load-name hook-name) job)
+      ((load/load-name hook-name) job)
       (.isSuccessful job))))
 
 (defmacro define-flow
@@ -200,18 +200,27 @@
 
 ;; Sources
 
-(define-source :text []
-   :input-format :text
-   :map-reader wrap/string-map-reader)
+(define-source :text [input]
+  :input-format :text
+  :output input
+  :map-reader wrap/string-map-reader)
 
-(define-source :int-text []
-   :input-format :text
-   :map-reader wrap/int-string-map-reader)
+(define-source :int-text [input]
+  :input-format :text
+  :input input
+  :map-reader wrap/int-string-map-reader)
 
 ;; Sinks
 
 (define-sink :clojure [output]
   :reduce-writer wrap/clojure-writer
+  :output-format :text
+  :output-key Text
+  :output-value Text
+  :output output)
+
+(define-sink :text [output]
+  :reduce-writer wrap/clojure-writer ;; TODO: Fix this
   :output-format :text
   :output-key Text
   :output-value Text
@@ -250,18 +259,28 @@
 
 (defn- parse-arg [arg]
   (case (first arg)
+	\( (read-string arg)
+	\{ (read-string arg)
+	\[ (read-string arg)
+	\: (keyword (clojure.contrib.string/drop 1 arg))
 	\' (symbol (clojure.contrib.string/drop 1 arg))
-	(read-string arg)))
-
+	arg))
+	
 (defn- parse-args [args]
   (map parse-arg args))
 
+(defn- load-task [type name]
+  (try
+    (load/load-name name)
+    (catch java.lang.Error e
+      (throw (java.lang.Error. (format "Unable to load %s %s" type name))))))
+      
+
 (defn -main [run-type name & args]
   (assert (and (string? run-type) (string? name) (= (first run-type) \-)))
-  (let [obj (load/load-name name)]
-    (case run-type
-;;	  "-job" (apply clojure-hadoop.job/tool-main args)
-	  "-step" (apply do-step obj (parse-args args))
-	  "-flow" (run-flow obj (parse-args args)))))
+  (case run-type
+	  "-job" (job/run-with-args name args)
+	  "-step" (println (apply do-step (load-task "step" name) (parse-args args)))
+	  "-flow" (println (run-flow (load-task "flow" name) (parse-args args)))))
 	 
     
