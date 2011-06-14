@@ -153,6 +153,7 @@
 	comps (select-keys kvmap *component-keys*)
 	params (apply dissoc kvmap *component-keys*)]
     `(defn ~name [~@args]
+       {:hadoop {:type :flow}}
        (cleanup-step-merge
 	(merge-with 
 	 (comp vec flatten list)
@@ -171,8 +172,12 @@
   [job group-name counter-name]
   (.getValue (job-counter job group-name counter-name)))
 
+(defn is-step? [step]
+  (and (fn? step)
+       (= (:type (:hadoop (meta step))) :step)))
+
 (defn do-step [step & args]
-  (assert (fn? step))
+  (assert (is-step? step))
   (let [job-config (apply step args)
 	job (clojure-hadoop.job/run (dissoc job-config :post-hook))]
     (loop []
@@ -184,6 +189,10 @@
       ((load/load-name hook-name) job)
       (.isSuccessful job))))
 
+(defn is-flow? [flow]
+  (and (fn? flow)
+       (= (:type (:hadoop (meta flow))) :flow)))
+
 (defmacro define-flow
   "A flow is a function which dispatches a set of
    jobs dictated by branching and other logic embedded
@@ -191,6 +200,7 @@
    a boolean value indicating success."
   [name [& args] & body]
   `(defn ~name [~@args]
+     {:hadoop {:type :flow}}
      ~@body))
      
   
@@ -248,6 +258,7 @@
    any uncaught exceptions result in a failed flow."
   [flow args]
   (try
+    (assert (is-flow? flow))
     (apply flow args)
     (catch java.lang.Throwable e
       (println e)
