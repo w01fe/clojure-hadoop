@@ -152,13 +152,13 @@
   (let [kvmap (kvs->map keyvals)
 	comps (select-keys kvmap *component-keys*)
 	params (apply dissoc kvmap *component-keys*)]
-    `(defn ~name [~@args]
-       {:hadoop {:type :flow}}
+    `(defn ~(with-meta name {:hadoop {:type :step}})       
+       [~@args]
        (cleanup-step-merge
 	(merge-with 
 	 (comp vec flatten list)
 	 ~@(get-component-exprs comps)
-	 ~(kvs-as-map args (flatten (seq params))))))))
+	 ~(kvs-as-map args (apply concat (seq params))))))))
 
 (defn step-configuration [step & args]
   (apply step args))
@@ -177,7 +177,6 @@
        (= (:type (:hadoop (meta step))) :step)))
 
 (defn do-step [step & args]
-  (assert (is-step? step))
   (let [job-config (apply step args)
 	job (clojure-hadoop.job/run (dissoc job-config :post-hook))]
     (loop []
@@ -199,8 +198,8 @@
    around dispatch-job statements.  It should return
    a boolean value indicating success."
   [name [& args] & body]
-  `(defn ~name [~@args]
-     {:hadoop {:type :flow}}
+  `(defn ~(with-meta name {:hadoop {:type :flow}})
+     [~@args]
      ~@body))
      
   
@@ -258,7 +257,6 @@
    any uncaught exceptions result in a failed flow."
   [flow args]
   (try
-    (assert (is-flow? flow))
     (apply flow args)
     (catch java.lang.Throwable e
       (println e)
@@ -280,18 +278,30 @@
 (defn- parse-args [args]
   (map parse-arg args))
 
-(defn- load-task [type name]
-  (try
-    (load/load-name name)
-    (catch java.lang.Error e
-      (throw (java.lang.Error. (format "Unable to load %s %s" type name))))))
+(defn- var-for-name [string]
+  (let [[ns-name fn-name] (.split string "/")]
+    (when-not (find-ns (symbol ns-name))
+      (require (symbol ns-name)))
+    (assert (find-ns (symbol ns-name)))
+    (find-var (symbol ns-name fn-name))))
+
+(defn- valid-operation? [type name]
+  (= type (:type (:hadoop (meta (var-for-name name))))))
+
+(defn- load-task [type opname]
+  (if (valid-operation? type opname)
+    (try
+      (load/load-name opname)
+      (catch java.lang.Error e
+	(throw (java.lang.Error. (format "Unable to load %s %s" (name type) opname)))))
+    (throw (java.lang.Error. (format "%s is not a hadoop %s operation" opname (name type))))))
       
 
 (defn -main [run-type name & args]
   (assert (and (string? run-type) (string? name) (= (first run-type) \-)))
   (case run-type
 	  "-job" (job/run-with-args name args)
-	  "-step" (println (apply do-step (load-task "step" name) (parse-args args)))
-	  "-flow" (println (run-flow (load-task "flow" name) (parse-args args)))))
+	  "-step" (println (apply do-step (load-task :step name) (parse-args args)))
+	  "-flow" (println (run-flow (load-task :flow name) (parse-args args)))))
 	 
     
