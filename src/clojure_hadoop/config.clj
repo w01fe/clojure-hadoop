@@ -301,6 +301,7 @@
      (SequenceFileOutputFormat/setOutputCompressionType
       job SequenceFile$CompressionType/RECORD))))
 
+
 (defmethod conf :batch [^Job job key value]
   (let [val (as-str value)]
     (cond (= val "true")
@@ -308,13 +309,20 @@
 	  (= val "false")
 	  (.set (configuration job) "clojure-hadoop.job.batch" "false"))))
 
+(defn- to-keyword [^String k]
+  (keyword 
+   (let [fk (first k)]
+     (if (or (= fk \:) (= fk \-))
+       (.substring k 1)
+       k))))
+
 (defn parse-command-line-args [^Job job args]
   (when (empty? args)
     (throw (IllegalArgumentException. "Missing required options.")))
   (when-not (even? (count args))
     (throw (IllegalArgumentException. "Number of options must be even.")))
   (doseq [[k v] (partition 2 args)]
-    (conf job (keyword (replace-re #"^:|-" "" k)) v)))
+    (conf job (to-keyword k) v)))
 
 (defn print-usage []
   (println "Usage: java -cp [jars...] clojure_hadoop.job [options...]

@@ -140,6 +140,10 @@
     (SequenceFileOutputFormat/setOutputCompressionType
      SequenceFile$CompressionType/BLOCK)))
 
+;;
+;; Override name and class if needed
+;;
+
 (def *job-customization* nil)
 
 (defmacro with-job-customization
@@ -164,40 +168,31 @@
 ;;
 
 (defn- submit-job [#^Job job]
-  (println job)
   (handle-replace-option job)
   (let [batch?  (= "true" (.get (configuration job) "clojure-hadoop.job.batch"))]
     (if batch?
       (.submit job)
       (.waitForCompletion job true))))
 
+(defn- run-hadoop-job
+  "Run a hadoop job and wait for completion.
+   Params are a hadoop Tool instance and a configuration function that should accept a single hadoop Job parameter.
+   The config function will be called with the current job once the default params have been set."
+  [tool job-config-fn]
+  (let [config (.getConf tool)]
+    (doto (Job. config)
+      (.setJarByClass (jar-class (.getClass tool)))
+      (.setJobName (job-name))
+      (set-default-config)
+      (job-config-fn)
+      (submit-job))))
+
 (defn run
   "Runs a Hadoop job given the job configuration map/fn."
-  ([job] 
-     (run (clojure_hadoop.job.) job))
-  ([tool job] 
-     (doto (Job. (.getConf tool))
-       (.setJarByClass (jar-class (.getClass tool)))
-       (set-default-config)
-       (.setJobName (job-name))
-       (config/conf :job job)
-       (submit-job))))
-
-(defn run-with-args
-  "Runs a clojure-hadoop job given a seq of command line
-   arguments, helpful as a proxy to call from flow.clj"
-  ([job args]
-     (println args)
-     (run-with-args (clojure_hadoop.job.) job args))
-  ([tool job args]
-     (doto (Job. (.getConf tool))
-       (println)
-       (.setJarByClass (jar-class (.getClass tool)))
-       (set-default-config)
-       (.setJobName (job-name))
-       (parse-command-line args)
-       (config/conf :job job)
-       (submit-job))))
+  ([job]
+     (run (clojure_hadoop.job.) job))  		    
+  ([tool job]
+     (run-hadoop-job tool #(config/conf % :job job))))
 
 ;;; TOOL METHODS
 
@@ -205,10 +200,5 @@
 (gen/gen-main-method)
 
 (defn tool-run [^Tool this args]
-  (doto (Job. (.getConf this))
-    (.setJarByClass (jar-class (.getClass this)))
-    (set-default-config)
-    (.setJobName (job-name))
-    (parse-command-line args)
-    (submit-job))
+  (run-hadoop-job this #(parse-command-line % args))
   0)
