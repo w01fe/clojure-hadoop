@@ -300,7 +300,7 @@
 (defn -main [run-type name & args]
   (assert (and (string? run-type) (string? name) (= (first run-type) \-)))
   (case run-type
-	  "-job" (job/run-with-args name args)
+	  "-job" (job/run-hadoop-job (clojure_hadoop.job.) #(job/parse-command-line % args))
 	  "-step" (println (apply do-step (load-task :step name) (parse-args args)))
 	  "-flow" (println (run-flow (load-task :flow name) (parse-args args)))))
 	 

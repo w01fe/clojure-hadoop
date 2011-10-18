@@ -174,7 +174,7 @@
       (.submit job)
       (.waitForCompletion job true))))
 
-(defn- run-hadoop-job
+(defn run-hadoop-job
   "Run a hadoop job and wait for completion.
    Params are a hadoop Tool instance and a configuration function that should accept a single hadoop Job parameter.
    The config function will be called with the current job once the default params have been set."
