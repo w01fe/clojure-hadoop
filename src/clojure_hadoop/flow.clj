@@ -18,13 +18,13 @@
 ;; Flow registry
 ;;
 
-(defonce *components* (atom {}))
+(defonce components (atom {}))
 
 (defn get-component
   "Get a component to apply when step is evaluated.
    Components are :source, :sink, and :shuffle"
   ([type name]
-     (get-in @*components* [type name]))
+     (get-in @components [type name]))
   ([type name errorp]
      (if-let [comp (get-component type name)]
        comp
@@ -37,7 +37,7 @@
   [type name comp]
   (when (get-component type name)
     (println "Redefining " type " named '" name "'"))
-  (swap! *components* #(assoc-in %1 [type name] comp)))
+  (swap! components #(assoc-in %1 [type name] comp)))
 
 ;;
 ;; Define components
