@@ -17,7 +17,7 @@
 (imp/import-mapreduce)
 (imp/import-mapreduce-lib)
 
-(def ^Configuration *config* nil)
+(def ^:dynamic ^Configuration *config* nil)
 
 (gen/gen-job-classes)
 
@@ -144,7 +144,7 @@
 ;; Override name and class if needed
 ;;
 
-(def *job-customization* nil)
+(def ^:dynamic *job-customization* nil)
 
 (defmacro with-job-customization
   "This binding macro allows us to de-couple the library jar that

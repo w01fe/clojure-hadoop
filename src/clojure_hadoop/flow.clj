@@ -105,7 +105,7 @@
   [name [& args] & keyvals]
   (make-component-expr :shuffle name args keyvals))
 
-(def *component-keys* [:source :sink :shuffle])
+(def component-keys [:source :sink :shuffle])
 
 (defn- get-component-expr
   "Get the map for a step component"
@@ -150,8 +150,8 @@
    It is otherwise identical to a job."
   [name [& args] & keyvals]
   (let [kvmap (kvs->map keyvals)
-	comps (select-keys kvmap *component-keys*)
-	params (apply dissoc kvmap *component-keys*)]
+	comps (select-keys kvmap component-keys)
+	params (apply dissoc kvmap component-keys)]
     `(defn ~(with-meta name {:hadoop {:type :step}})       
        [~@args]
        (cleanup-step-merge
