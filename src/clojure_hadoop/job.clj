@@ -6,8 +6,7 @@
             [clojure-hadoop.load :as load]
 	    [clojure.stacktrace])
   (:import (org.apache.hadoop.util Tool))
-  (:use [clojure.contrib.def :only (defvar-)]
-        [clojure-hadoop.config :only (configuration)]
+  (:use [clojure-hadoop.config :only (configuration)]
         [clojure-hadoop.context :only (with-context)]))
 
 (imp/import-conf)
@@ -21,17 +20,17 @@
 
 (gen/gen-job-classes)
 
-(defvar- method-fn-name
+(def ^:private method-fn-name
   {"map" "mapper-map"
    "reduce" "reducer-reduce"
    "combine" "combiner-reduce"})
 
-(defvar- wrapper-fn
+(def ^:private wrapper-fn
   {"map" wrap/wrap-map
    "reduce" wrap/wrap-reduce
    "combine" wrap/wrap-reduce})
 
-(defvar- default-reader
+(def ^:private default-reader
   {"map" wrap/clojure-map-reader
    "reduce" wrap/clojure-reduce-reader
    "combine" wrap/clojure-reduce-reader})

@@ -5,7 +5,8 @@
             [clojure-hadoop.config :as config]
             [clojure-hadoop.load :as load]
 	    [clojure-hadoop.job :as job]
-	    [clojure.stacktrace]))
+	    [clojure.stacktrace]
+	    [clojure.string]))
 
 (gen-class
  :name "clojure-hadoop.flow"
@@ -271,10 +272,10 @@
 	\( (read-string arg)
 	\{ (read-string arg)
 	\[ (read-string arg)
-	\: (keyword (clojure.contrib.string/drop 1 arg))
-	\' (symbol (clojure.contrib.string/drop 1 arg))
+	\: (keyword (.substring arg 1))
+	\' (symbol (.substring arg 1))
 	arg))
-	
+
 (defn- parse-args [args]
   (map parse-arg args))
 

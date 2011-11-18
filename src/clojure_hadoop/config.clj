@@ -1,8 +1,7 @@
 (ns clojure-hadoop.config
   (:require [clojure-hadoop.imports :as imp]
             [clojure-hadoop.load :as load])
-  (:use [clojure.contrib.string :only [trim replace-re]]
-        [clojure.contrib.def :only [defvar]]))
+  (:require [clojure.string :as str]))
 
 ;; This file defines configuration options for clojure-hadoop.
 ;;
@@ -25,29 +24,35 @@
 (imp/import-mapreduce)
 (imp/import-mapreduce-lib)
 
-(defvar combine-cleanup "clojure-hadoop.job.combine.cleanup"
+(def combine-cleanup 
   "The name of the property that stores the cleanup function name of
-  the combiner.")
+  the combiner."
+  "clojure-hadoop.job.combine.cleanup")
 
-(defvar combine-setup "clojure-hadoop.job.combine.setup"
+(def combine-setup 
   "The name of the property that stores the setup function name of the
-  combiner.")
+  combiner."
+  "clojure-hadoop.job.combine.setup")
 
-(defvar map-cleanup "clojure-hadoop.job.map.cleanup"
+(def map-cleanup 
   "The name of the property that stores the cleanup function name of
-  the mapper.")
+  the mapper."
+  "clojure-hadoop.job.map.cleanup")
 
-(defvar map-setup "clojure-hadoop.job.map.setup"
+(def map-setup 
   "The name of the property that stores the setup function name of the
-  mapper.")
+  mapper."
+  "clojure-hadoop.job.map.setup")
 
-(defvar reduce-cleanup "clojure-hadoop.job.reduce.cleanup"
+(def reduce-cleanup 
   "The name of the property that stores the cleanup function name of
-  the reducer.")
+  the reducer."
+  "clojure-hadoop.job.reduce.cleanup")
 
-(defvar reduce-setup "clojure-hadoop.job.reduce.setup"
+(def reduce-setup 
   "The name of the property that stores the setup function name of the
-  reducer.")
+  reducer."
+  "clojure-hadoop.job.reduce.setup")
 
 (defn- ^String as-str [s]
   (cond (keyword? s) (name s)
@@ -158,7 +163,7 @@
   (if (integer? value)
     (.setNumReduceTasks job value)
     (try
-      (.setNumReduceTasks job (Integer/parseInt (trim value)))
+      (.setNumReduceTasks job (Integer/parseInt (str/trim value)))
       (catch NumberFormatException _
         (throw (IllegalArgumentException. "The reduce-tasks option must be an integer."))))))
 

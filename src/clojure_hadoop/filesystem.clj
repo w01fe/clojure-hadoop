@@ -1,17 +1,19 @@
 (ns clojure-hadoop.filesystem
   (:import [java.io BufferedReader BufferedWriter InputStreamReader OutputStreamWriter])
-  (:use [clojure.contrib.def :only (defvar)]
-        clojure-hadoop.imports))
+  (:use clojure-hadoop.imports))
 
 (import-conf)
 (import-fs)
 (import-io-compress)
 
-(defvar *buffer-size* 1024
-  "The default buffer size.")
+(def ^:dynamic *buffer-size* 
+  "The default buffer size."
+  1024)
 
-(defvar *file-system* (FileSystem/get (Configuration.))
-  "The filesystem.")
+(def ^:dynamic *file-system*
+  "The filesystem."
+  (FileSystem/get (Configuration.)))
+  
 
 (defn make-path [path]
   (if (isa? (class path) Path)
