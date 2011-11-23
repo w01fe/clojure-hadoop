@@ -3,7 +3,8 @@
 
 (import-mapreduce)
 
-(def ^TaskInputOutputContext *context* nil)
+(def ^{:tag TaskInputOutputContext :dynamic true}
+  *context* nil)
 
 (defn get-counter
   "Returns a counter by group and name."

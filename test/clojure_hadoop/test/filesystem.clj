@@ -1,11 +1,25 @@
 (ns clojure-hadoop.test.filesystem
-  (:import (java.io BufferedReader BufferedWriter InputStreamReader OutputStreamWriter)
+  (:import (java.io BufferedReader BufferedWriter InputStreamReader
+		    PrintWriter OutputStreamWriter)
            (org.apache.hadoop.fs FSDataInputStream FSDataOutputStream FileSystem LocalFileSystem Path)
            org.apache.hadoop.conf.Configuration
            org.apache.hadoop.fs.s3native.NativeS3FileSystem)
   (:use [clojure-hadoop.imports :only (import-io-compress)]
-        [clojure.contrib.duck-streams :only (read-lines write-lines)]
+        [clojure.java.io :only [reader writer]]
         clojure.test clojure-hadoop.filesystem))
+
+(defn read-lines [f]
+  (let [read-lines (fn [rdr]
+		     (if-let [line (.readLine rdr)]
+		       (conj (read-lines rdr) line)
+		       (.close rdr)))]
+    (read-lines (reader f))))
+
+(defn write-lines [f lines]
+  (with-open [writer (PrintWriter. (writer f))]
+    (doseq [line lines]
+      (.write writer (str line))
+      (.println writer))))
 
 (import-io-compress)
 
