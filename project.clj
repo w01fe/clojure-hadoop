@@ -1,16 +1,17 @@
-(defproject clojure-hadoop "1.3.1-SNAPSHOT"
+(defproject clojure-hadoop "1.3.3-SNAPSHOT"
   :description "Library to aid writing Hadoop jobs in Clojure."
-  :url "http://github.com/alexott/clojure-hadoop"
+  :url "http://github.com/cmiles74/clojure-hadoop"
   :license {:name "Eclipse Public License 1.0"
             :url "http://opensource.org/licenses/eclipse-1.0.php"
             :distribution "repo"
             :comments "Same license as Clojure"}
-  :dependencies [[org.apache.hadoop/hadoop-core "0.20.2"]
-                 [org.clojure/clojure "1.2.0"]
-                 [org.clojure/clojure-contrib "1.2.0"]
-                 [org.apache.hadoop/hadoop-core "0.20.2"]
-                 [log4j/log4j "1.2.16"]]
-  :dev-dependencies [[swank-clojure "1.2.1"]]
+  :dependencies [[org.apache.hadoop/hadoop-core "0.20.205.0"]
+                 [org.clojure/clojure "1.3.0"]
+                 [org.codehaus.jackson/jackson-mapper-asl "1.9.2"]
+                 [log4j/log4j "1.2.16" :exclusions [javax.mail/mail
+                                                    javax.jms/jms
+                                                    com.sun.jdmk/jmxtools
+                                                    com.sun.jmx/jmxri]]]
   :aot [clojure-hadoop.config
         clojure-hadoop.defjob
         clojure-hadoop.gen

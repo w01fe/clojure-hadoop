@@ -5,8 +5,7 @@
             [clojure-hadoop.config :as config]
             [clojure-hadoop.load :as load])
   (:import (org.apache.hadoop.util Tool))
-  (:use [clojure.contrib.def :only (defvar-)]
-        [clojure-hadoop.config :only (configuration)]
+  (:use [clojure-hadoop.config :only (configuration)]
         [clojure-hadoop.context :only (with-context)]))
 
 (imp/import-conf)
@@ -16,21 +15,21 @@
 (imp/import-mapreduce)
 (imp/import-mapreduce-lib)
 
-(def ^Configuration *config* nil)
+(def ^Configuration ^:dynamic *config* nil)
 
 (gen/gen-job-classes)
 
-(defvar- method-fn-name
+(def method-fn-name
   {"map" "mapper-map"
    "reduce" "reducer-reduce"
    "combine" "combiner-reduce"})
 
-(defvar- wrapper-fn
+(def wrapper-fn
   {"map" wrap/wrap-map
    "reduce" wrap/wrap-reduce
    "combine" wrap/wrap-reduce})
 
-(defvar- default-reader
+(def default-reader
   {"map" wrap/clojure-map-reader
    "reduce" wrap/clojure-reduce-reader
    "combine" wrap/clojure-reduce-reader})
@@ -155,7 +154,7 @@
 (defn run
   "Runs a Hadoop job given the job configuration map/fn."
   ([job]
-     (run (clojure_hadoop.job.) job))  		    
+     (run (clojure_hadoop.job.) job))
   ([tool job]
      (run-hadoop-job tool #(config/conf % :job job))))
 

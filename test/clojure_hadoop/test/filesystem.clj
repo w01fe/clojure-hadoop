@@ -1,11 +1,12 @@
 (ns clojure-hadoop.test.filesystem
-  (:import (java.io BufferedReader BufferedWriter InputStreamReader OutputStreamWriter)
-           (org.apache.hadoop.fs FSDataInputStream FSDataOutputStream FileSystem LocalFileSystem Path)
-           org.apache.hadoop.conf.Configuration
-           org.apache.hadoop.fs.s3native.NativeS3FileSystem)
-  (:use [clojure-hadoop.imports :only (import-io-compress)]
-        [clojure.contrib.duck-streams :only (read-lines write-lines)]
-        clojure.test clojure-hadoop.filesystem))
+  (:use [clojure.java.io :only [writer reader]]
+        [clojure-hadoop.imports :only [import-io-compress]]
+        [clojure.test]
+        [clojure-hadoop.filesystem])
+  (:import [java.io BufferedReader BufferedWriter InputStreamReader OutputStreamWriter]
+           [org.apache.hadoop.fs FSDataInputStream FSDataOutputStream FileSystem LocalFileSystem Path]
+           [org.apache.hadoop.conf Configuration]
+           [org.apache.hadoop.fs.s3native NativeS3FileSystem]))
 
 (import-io-compress)
 
@@ -55,14 +56,14 @@
   (is (= (hadoop-tmp-dir)
          (make-path (.get (Configuration.) "hadoop.tmp.dir")))))
 
-(deftest test-exists?  
+(deftest test-exists?
   (let [filename (str (local-tmp-dir) "/test-exists?")]
     (create-new-file filename)
     (is (exists? filename))
     (delete filename)
     (is (not (exists? filename)))))
 
-(deftest test-make-directory  
+(deftest test-make-directory
   (let [directory (str (local-tmp-dir) "/test-make-directory")]
     (make-directory (make-path directory))
     (is (exists? directory))))
@@ -110,13 +111,16 @@
 
 (deftest test-buffered-io-with-compression
   (let [filename (str (local-tmp-dir) "/test-buffered-reader.gz") content ["1" "2"]]
-    (write-lines (buffered-writer filename) content)
-    (is (not (= content (read-lines filename))))
-    (is (= content (read-lines (buffered-reader filename))))))
+    (with-open [writer (buffered-writer filename)]
+      (.write writer (pr-str content)))
+
+    (with-open [rdr (reader filename)]
+      (is (not (= content (line-seq rdr))))
+      (is (= (pr-str content) (.readLine (buffered-reader filename)))))))
 
 (deftest test-copy
   (let [source (str (local-tmp-dir) "/test-copy-source")
-        destination (str (local-tmp-dir) "/test-copy-destination")]        
+        destination (str (local-tmp-dir) "/test-copy-destination")]
     (try
       (spit source "TEST")
       (copy source destination)
@@ -152,4 +156,3 @@
                       (spit (str filename) "TEST")
                       (exists? filename)
                       filename)))))
-

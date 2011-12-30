@@ -1,8 +1,7 @@
 (ns clojure-hadoop.config
   (:require [clojure-hadoop.imports :as imp]
             [clojure-hadoop.load :as load])
-  (:use [clojure.contrib.string :only [trim replace-re]]
-        [clojure.contrib.def :only [defvar]]))
+  (:use [clojure.string :only [trim]]))
 
 ;; This file defines configuration options for clojure-hadoop.
 ;;
@@ -25,27 +24,27 @@
 (imp/import-mapreduce)
 (imp/import-mapreduce-lib)
 
-(defvar combine-cleanup "clojure-hadoop.job.combine.cleanup"
+(def combine-cleanup "clojure-hadoop.job.combine.cleanup"
   "The name of the property that stores the cleanup function name of
   the combiner.")
 
-(defvar combine-setup "clojure-hadoop.job.combine.setup"
+(def combine-setup "clojure-hadoop.job.combine.setup"
   "The name of the property that stores the setup function name of the
   combiner.")
 
-(defvar map-cleanup "clojure-hadoop.job.map.cleanup"
+(def map-cleanup "clojure-hadoop.job.map.cleanup"
   "The name of the property that stores the cleanup function name of
   the mapper.")
 
-(defvar map-setup "clojure-hadoop.job.map.setup"
+(def map-setup "clojure-hadoop.job.map.setup"
   "The name of the property that stores the setup function name of the
   mapper.")
 
-(defvar reduce-cleanup "clojure-hadoop.job.reduce.cleanup"
+(def reduce-cleanup "clojure-hadoop.job.reduce.cleanup"
   "The name of the property that stores the cleanup function name of
   the reducer.")
 
-(defvar reduce-setup "clojure-hadoop.job.reduce.setup"
+(def reduce-setup "clojure-hadoop.job.reduce.setup"
   "The name of the property that stores the setup function name of the
   reducer.")
 
@@ -67,7 +66,7 @@
    (fn? value) (conf job :job (value))
    :else (doseq [[k v] value] (conf job k v))))
 
-(defmethod conf :name [^Job job key value]  
+(defmethod conf :name [^Job job key value]
   (.setJobName job value))
 
 ;; Job input paths, separated by commas, as a String.
@@ -150,7 +149,7 @@
 (defmethod conf :combine [^Job job key value]
   (let [value (as-str value)]
     (cond
-     (.contains value "/")      
+     (.contains value "/")
      (do
        (.setCombinerClass job (Class/forName "clojure_hadoop.job_combiner"))
        (.set (configuration job) "clojure-hadoop.job.combine" value))
@@ -287,7 +286,7 @@
       job SequenceFile$CompressionType/RECORD))))
 
 (defn- to-keyword [^String k]
-  (keyword 
+  (keyword
    (let [fk (first k)]
      (if (or (= fk \:) (= fk \-))
        (.substring k 1)
@@ -334,4 +333,3 @@ Other available options are:
  -output-compressor Compression class or \"gzip\",\"bzip2\",\"default\"
  -compression-type  For seqfiles, compress \"block\",\"record\",\"none\"
 "))
-
