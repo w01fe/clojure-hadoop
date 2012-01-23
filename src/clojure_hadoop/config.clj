@@ -1,7 +1,7 @@
 (ns clojure-hadoop.config
   (:require [clojure-hadoop.imports :as imp]
-            [clojure-hadoop.load :as load])
-  (:use [clojure.string :only [trim]]))
+            [clojure-hadoop.load :as load]
+            [clojure.string :as str]))
 
 ;; This file defines configuration options for clojure-hadoop.
 ;;
@@ -24,29 +24,35 @@
 (imp/import-mapreduce)
 (imp/import-mapreduce-lib)
 
-(def combine-cleanup "clojure-hadoop.job.combine.cleanup"
+(def combine-cleanup
   "The name of the property that stores the cleanup function name of
-  the combiner.")
+  the combiner."
+  "clojure-hadoop.job.combine.cleanup")
 
-(def combine-setup "clojure-hadoop.job.combine.setup"
+(def combine-setup
   "The name of the property that stores the setup function name of the
-  combiner.")
+  combiner."
+  "clojure-hadoop.job.combine.setup")
 
-(def map-cleanup "clojure-hadoop.job.map.cleanup"
+(def map-cleanup
   "The name of the property that stores the cleanup function name of
-  the mapper.")
+  the mapper."
+  "clojure-hadoop.job.map.cleanup")
 
-(def map-setup "clojure-hadoop.job.map.setup"
+(def map-setup
   "The name of the property that stores the setup function name of the
-  mapper.")
+  mapper."
+  "clojure-hadoop.job.map.setup")
 
-(def reduce-cleanup "clojure-hadoop.job.reduce.cleanup"
+(def reduce-cleanup
   "The name of the property that stores the cleanup function name of
-  the reducer.")
+  the reducer."
+  "clojure-hadoop.job.reduce.cleanup")
 
-(def reduce-setup "clojure-hadoop.job.reduce.setup"
+(def reduce-setup
   "The name of the property that stores the setup function name of the
-  reducer.")
+  reducer."
+  "clojure-hadoop.job.reduce.setup")
 
 (defn- ^String as-str [s]
   (cond (keyword? s) (name s)
@@ -62,9 +68,24 @@
 
 (defmethod conf :job [^Job job key value]
   (cond
+   (nil? value) (throw (IllegalArgumentException. (format "Job %s not found" value)))
    (string? value) (conf job :job (load/load-name value))
    (fn? value) (conf job :job (value))
    :else (doseq [[k v] value] (conf job k v))))
+
+(defn- set-parameters [^Job job params]
+  (doseq [[param value] params]
+    (.set (configuration job) param value)))
+
+(defmethod conf :params [^Job job key params]
+  (set-parameters job (var-get (resolve (read-string params)))))
+
+;; Modify the job or configuration
+(defmethod conf :configure [^Job job key fnames]
+  (doseq [fname (if (sequential? fnames) fnames (list fnames))]
+    (if (fn? fname)
+      (fname job)
+      ((load/load-name fname) job))))
 
 (defmethod conf :name [^Job job key value]
   (.setJobName job value))
@@ -142,7 +163,7 @@
   (if (integer? value)
     (.setNumReduceTasks job value)
     (try
-      (.setNumReduceTasks job (Integer/parseInt (trim value)))
+      (.setNumReduceTasks job (Integer/parseInt (str/trim value)))
       (catch NumberFormatException _
         (throw (IllegalArgumentException. "The reduce-tasks option must be an integer."))))))
 
@@ -285,6 +306,14 @@
      (SequenceFileOutputFormat/setOutputCompressionType
       job SequenceFile$CompressionType/RECORD))))
 
+
+(defmethod conf :batch [^Job job key value]
+  (let [val (as-str value)]
+    (cond (= val "true")
+	  (.set (configuration job) "clojure-hadoop.job.batch" "true")
+	  (= val "false")
+	  (.set (configuration job) "clojure-hadoop.job.batch" "false"))))
+
 (defn- to-keyword [^String k]
   (keyword
    (let [fk (first k)]
@@ -332,4 +361,5 @@ Other available options are:
  -compress-output   If \"true\", compress job output files
  -output-compressor Compression class or \"gzip\",\"bzip2\",\"default\"
  -compression-type  For seqfiles, compress \"block\",\"record\",\"none\"
+ -batch             If \"false\" (default), run interactively, else 'submit'
 "))
