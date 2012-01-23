@@ -19,17 +19,17 @@
 
 (gen/gen-job-classes)
 
-(def method-fn-name
+(def ^{:private true} method-fn-name
   {"map" "mapper-map"
    "reduce" "reducer-reduce"
    "combine" "combiner-reduce"})
 
-(def wrapper-fn
+(def ^{:private true} wrapper-fn
   {"map" wrap/wrap-map
    "reduce" wrap/wrap-reduce
    "combine" wrap/wrap-reduce})
 
-(def default-reader
+(def ^{:private true} default-reader
   {"map" wrap/clojure-map-reader
    "reduce" wrap/clojure-reduce-reader
    "combine" wrap/clojure-reduce-reader})
