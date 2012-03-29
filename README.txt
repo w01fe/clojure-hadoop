@@ -2,19 +2,18 @@ clojure-hadoop
 
 A library to assist in writing Hadoop MapReduce jobs in Clojure.
 
-by Stuart Sierra
-http://stuartsierra.com/
+Originally written by Stuart Sierra (http://stuartsierra.com/).
+Extended by Roman Scherer, Christopher Miles, Ian Eslick, 
+Dave Lambert, Alex Ott, and other.
 
-For stable releases, see
-http://stuartsierra.com/software/clojure-hadoop
+Stable releases, are available via http://clojars.org
 
 For more information
 on Clojure, http://clojure.org/
 on Hadoop, http://hadoop.apache.org/
 
-Also see my presentation about this library at
+Also see Stuart's presentation about this library at
 http://vimeo.com/7669741
-
 
 Copyright (c) Stuart Sierra, 2009. All rights reserved.  The use and
 distribution terms for this software are covered by the Eclipse Public
