@@ -6,7 +6,7 @@ Originally written by Stuart Sierra (http://stuartsierra.com/).
 Extended by Roman Scherer, Christopher Miles, Ian Eslick, 
 Dave Lambert, Alex Ott, and other.
 
-Stable releases, are available via http://clojars.org
+Stable releases are available via http://clojars.org
 
 For more information
 on Clojure, http://clojure.org/
@@ -14,6 +14,9 @@ on Hadoop, http://hadoop.apache.org/
 
 Also see Stuart's presentation about this library at
 http://vimeo.com/7669741
+
+Introduction to work with library is available at
+http://alexott.net/en/clojure/ClojureHadoop.html
 
 Copyright (c) Stuart Sierra, 2009. All rights reserved.  The use and
 distribution terms for this software are covered by the Eclipse Public
