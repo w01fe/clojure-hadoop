@@ -3,3 +3,4 @@ lib
 target
 tmp
 /clojure-hadoop-*.jar
+/pom.xml
