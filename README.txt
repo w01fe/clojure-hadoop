@@ -142,6 +142,13 @@ Layer 6: clojure-hadoop.defjob - Specifying JobConf parameters
     how to set job configuration (JobConf) parameters either via
     the commandline, or as part of the defjob defintion within the file.
 
+ Layer 7: clojure-hadoop.config - Adding files and archives 
+to the DistributedCache.
+    
+    Example file "wordcount7.clj" demonstrates how to specify files
+    and archives for distribution to across nodes via the 
+    DistributedCache, as well as how to access the files 
+    during the mapper-setup or reducer-setup phases.
 
 NOTES
 
