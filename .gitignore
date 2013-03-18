@@ -4,3 +4,4 @@ target
 tmp
 /clojure-hadoop-*.jar
 /pom.xml
+/.lein-failures
