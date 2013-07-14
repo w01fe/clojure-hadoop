@@ -5,3 +5,4 @@ tmp
 /clojure-hadoop-*.jar
 /pom.xml
 /.lein-failures
+/pom.xml.asc
