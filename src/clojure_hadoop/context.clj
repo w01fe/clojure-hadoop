@@ -5,7 +5,7 @@
 
 (def ^TaskInputOutputContext ^:dynamic *context* nil)
 
-(defn get-counter
+(defn ^Counter get-counter
   "Returns a counter by group and name."
   [group-name counter-name]
   (if *context* (.getCounter *context* group-name counter-name)))
