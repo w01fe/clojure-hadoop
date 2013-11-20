@@ -4,9 +4,11 @@
             [clojure-hadoop.wrap :as wrap]
             [clojure-hadoop.config :as config]
             [clojure-hadoop.load :as load]
-	    [clojure-hadoop.job :as job]
-	    [clojure.stacktrace]
-	    [clojure.string]))
+            [clojure-hadoop.job :as job]
+            [clojure.stacktrace]
+            [clojure.string])
+  (:import [org.apache.hadoop.mapreduce JobContext Job Counter]
+           org.apache.hadoop.conf.Configuration))
 
 (gen-class
  :name "clojure-hadoop.flow"
@@ -30,8 +32,8 @@
      (if-let [comp (get-component type name)]
        comp
        (if errorp
-	 (throw (Error. (str "Component " name " not found for type " type)))
-	 nil))))
+         (throw (Error. (str "Component " name " not found for type " type)))
+         nil))))
 
 (defn put-component
   "Register a component for acquisition in later macro expansions"
@@ -57,27 +59,27 @@
 
 (defn- kvs->map [kvs]
   (reduce (fn [m [k v]] (assoc m k v))
-	  {} (partition 2 kvs)))
+          {} (partition 2 kvs)))
 
 (defn- kvs-as-map [arglist kvs]
   (reduce
    (fn [m [k v]]
      (assoc m k (cond (keyword? v) (name v)
-		      (number? v) (str v)
-		      (string? v) v
-		      (symbol? v) (if ((set arglist) v)
-				    v
-				    (full-name v))
-		      (instance? Boolean v) (str v)
-		      (and (sequential? v)
-			   (#{:configure :params :post-hook} k)) v
-		      :else (throw (Exception. (str "Invalid argument to component expression " k ", must be strings, symbols, keywords or bound variable references"))))))
+                      (number? v) (str v)
+                      (string? v) v
+                      (symbol? v) (if ((set arglist) v)
+                                    v
+                                    (full-name v))
+                      (instance? Boolean v) (str v)
+                      (and (sequential? v)
+                           (#{:configure :params :post-hook} k)) v
+                      :else (throw (Exception. (str "Invalid argument to component expression " k ", must be strings, symbols, keywords or bound variable references"))))))
    {} (apply hash-map kvs)))
 
 (defn- make-component-expr [type name arglist keyvals]
   `(put-component ~type ~name
-		  (fn [~@arglist]
-		    ~(kvs-as-map arglist keyvals))))
+                  (fn [~@arglist]
+                    ~(kvs-as-map arglist keyvals))))
 
 (defmacro define-source
   "A source is a named function which takes arguments and returns
@@ -121,7 +123,7 @@
   "Get source, sink and shuffle definitions and return a list of maps"
   [comps]
   (map #(let [[k vs] %]
-	  (get-component-expr k vs))
+          (get-component-expr k vs))
        comps))
 
 (defn cleanup-step-merge
@@ -137,11 +139,11 @@
 	cleaned (zipmap rest_keys
 			(map #(if (sequential? %) (last %) %) rest_vals))
 	cleaned1 (if params
-		   (assoc cleaned :params params)
-		   cleaned)
+                   (assoc cleaned :params params)
+                   cleaned)
 	cleaned2 (if cfg
-		   (assoc cleaned1 :configure cfg)
-		   cleaned1)]
+                   (assoc cleaned1 :configure cfg)
+                   cleaned1)]
     cleaned2))
 
 
@@ -157,14 +159,14 @@
        [~@args]
        (cleanup-step-merge
 	(merge-with 
-	 (comp vec flatten list)
-	 ~@(get-component-exprs comps)
-	 ~(kvs-as-map args (apply concat (seq params))))))))
+         (comp vec flatten list)
+         ~@(get-component-exprs comps)
+         ~(kvs-as-map args (apply concat (seq params))))))))
 
 (defn step-configuration [step & args]
   (apply step args))
 
-(defn- job-counter [job group counter]
+(defn- ^Counter job-counter [^Job job group counter]
   (.findCounter (.getCounters job) group counter))
 
 (defn job-counter-value
@@ -179,12 +181,12 @@
 
 (defn do-step [step & args]
   (let [job-config (apply step args)
-	job (clojure-hadoop.job/run (dissoc job-config :post-hook))]
+	^Job job (clojure-hadoop.job/run (dissoc job-config :post-hook))]
     (loop []
 	(if (.isComplete job)
-	  true
-	  (do (Thread/sleep 5000)
-	      (recur))))
+          true
+          (do (Thread/sleep 5000)
+              (recur))))
     (if-let [hook-name (:post-hook job-config)]
       ((load/load-name hook-name) job)
       (.isSuccessful job))))
@@ -267,7 +269,7 @@
 ;; Entry point
 ;;
 
-(defn- parse-arg [arg]
+(defn- parse-arg [^String arg]
   (case (first arg)
 	\( (read-string arg)
 	\{ (read-string arg)
@@ -279,7 +281,7 @@
 (defn- parse-args [args]
   (map parse-arg args))
 
-(defn- var-for-name [string]
+(defn- var-for-name [^String string]
   (let [[ns-name fn-name] (.split string "/")]
     (when-not (find-ns (symbol ns-name))
       (require (symbol ns-name)))
@@ -301,8 +303,8 @@
 (defn -main [run-type name & args]
   (assert (and (string? run-type) (string? name) (= (first run-type) \-)))
   (case run-type
-	  "-job" (job/run-hadoop-job (clojure_hadoop.job.) #(job/parse-command-line % args))
-	  "-step" (println (apply do-step (load-task :step name) (parse-args args)))
-	  "-flow" (println (run-flow (load-task :flow name) (parse-args args)))))
-	 
+          "-job" (job/run-hadoop-job (clojure_hadoop.job.) #(job/parse-command-line % args))
+          "-step" (println (apply do-step (load-task :step name) (parse-args args)))
+          "-flow" (println (run-flow (load-task :flow name) (parse-args args)))))
+         
     

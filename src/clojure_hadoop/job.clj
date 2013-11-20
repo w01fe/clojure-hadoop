@@ -4,8 +4,11 @@
             [clojure-hadoop.wrap :as wrap]
             [clojure-hadoop.config :as config]
             [clojure-hadoop.load :as load]
-	    [clojure.stacktrace])
-  (:import (org.apache.hadoop.util Tool))
+            [clojure.stacktrace])
+  (:import (org.apache.hadoop.util Tool) 
+           org.apache.hadoop.mapreduce.JobContext
+           org.apache.hadoop.conf.Configuration
+           )
   (:use [clojure-hadoop.config :only (configuration)]
         [clojure-hadoop.context :only (with-context)]))
 
@@ -16,7 +19,7 @@
 (imp/import-mapreduce)
 (imp/import-mapreduce-lib)
 
-(def ^Configuration ^:dynamic *config* nil)
+(def ^:dynamic *config* nil)
 
 (gen/gen-job-classes)
 
@@ -68,54 +71,54 @@
 
 ;;; MAPPER METHODS
 
-(defn mapper-cleanup [this context]
+(defn mapper-cleanup [this ^JobContext context]
   (with-context context
-    (let [configuration (.getConfiguration context)]
+    (let [^Configuration configuration (.getConfiguration context)]
       (if-let [cleanup-fn-name (.get configuration config/map-cleanup)]
         ((load/load-name cleanup-fn-name) context)))))
 
 (defn mapper-map [this wkey wvalue context]
   (throw (Exception. "Mapper function not defined.")))
 
-(defn mapper-setup [this context]
+(defn mapper-setup [this ^JobContext context]
   (with-context context
-    (let [configuration (.getConfiguration context)]
+    (let [^Configuration configuration (.getConfiguration context)]
       (configure-functions "map" configuration)
       (if-let [setup-fn-name (.get configuration config/map-setup)]
         ((load/load-name setup-fn-name) context)))))
 
 ;;; REDUCER METHODS
 
-(defn reducer-cleanup [this context]
+(defn reducer-cleanup [this ^JobContext context]
   (with-context context
-    (let [configuration (.getConfiguration context)]
+    (let [^Configuration configuration (.getConfiguration context)]
       (if-let [cleanup-fn-name (.get configuration config/reduce-cleanup)]
         ((load/load-name cleanup-fn-name) context)))))
 
 (defn reducer-reduce [this wkey wvalues context]
   (throw (Exception. "Reducer function not defined.")))
 
-(defn reducer-setup [this context]
+(defn reducer-setup [this ^JobContext context]
   (with-context context
-    (let [configuration (.getConfiguration context)]
+    (let [^Configuration configuration (.getConfiguration context)]
       (configure-functions "reduce" configuration)
       (if-let [setup-fn-name (.get configuration config/reduce-setup)]
         ((load/load-name setup-fn-name) context)))))
 
 ;;; COMBINER METHODS
 
-(defn combiner-cleanup [this context]
+(defn combiner-cleanup [this ^JobContext context]
   (with-context context
-    (let [configuration (.getConfiguration context)]
+    (let [^Configuration configuration (.getConfiguration context)]
       (if-let [cleanup-fn-name (.get configuration config/combine-cleanup)]
         ((load/load-name cleanup-fn-name) context)))))
 
-(defn combiner-reduce [this wkey wvalues context]
+(defn combiner-reduce [this wkey wvalues ^JobContext context]
   (throw (Exception. "Combiner function not defined.")))
 
-(defn combiner-setup [this context]
+(defn combiner-setup [this ^JobContext context]
   (with-context context
-    (let [configuration (.getConfiguration context)]
+    (let [^Configuration configuration (.getConfiguration context)]
       (configure-functions "combine" configuration)
       (if-let [setup-fn-name (.get configuration config/combine-setup)]
         ((load/load-name setup-fn-name) context)))))
@@ -177,7 +180,7 @@
   "Run a hadoop job and wait for completion.
    Params are a hadoop Tool instance and a configuration function that should accept a single hadoop Job parameter.
    The config function will be called with the current job once the default params have been set."
-  [tool job-config-fn]
+  [^Tool tool job-config-fn]
   (let [config (.getConf tool)]
     (doto (Job. config)
       (.setJarByClass (jar-class (.getClass tool)))

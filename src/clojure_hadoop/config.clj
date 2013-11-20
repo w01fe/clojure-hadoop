@@ -2,7 +2,9 @@
   (:require [clojure-hadoop.imports :as imp]
             [clojure-hadoop.load :as load]
             [clojure.string :as str])
-  (:import [java.net URI]))
+  (:import [java.net URI]
+           org.apache.hadoop.conf.Configuration
+))
 
 ;; This file defines configuration options for clojure-hadoop.
 ;;
@@ -62,7 +64,7 @@
         (fn? s) (throw (Exception. "Cannot use function as value; use a symbol."))
         :else (str s)))
 
-(defn configuration
+(defn ^Configuration configuration 
   "Returns the configuration for the job."
   [^Job job] (.getConfiguration job))
 
@@ -80,7 +82,7 @@
 ;; would yield
 ;; (.set (configuration job) "my.foo.value" "myfoovalue")
 (defmethod conf :X [^Job job key value]
-  (.set (configuration job) (subs (as-str key) 1) value))
+  (.set (configuration job) ^String (subs (as-str key) 1) value))
 
 (defmethod conf :job [^Job job key value]
   (cond
@@ -342,9 +344,9 @@
 (defmethod conf :batch [^Job job key value]
   (let [val (as-str value)]
     (cond (= val "true")
-	  (.set (configuration job) "clojure-hadoop.job.batch" "true")
-	  (= val "false")
-	  (.set (configuration job) "clojure-hadoop.job.batch" "false"))))
+          (.set (configuration job) "clojure-hadoop.job.batch" "true")
+          (= val "false")
+          (.set (configuration job) "clojure-hadoop.job.batch" "false"))))
 
 (defn- to-keyword [^String k]
   (keyword
