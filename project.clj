@@ -5,19 +5,16 @@
             :url "http://opensource.org/licenses/eclipse-1.0.php"
             :distribution "repo"
             :comments "Same license as Clojure"}
-  :profiles {:dev {:dependencies [[org.clojure/clojure "1.6.0"]]}}
-  :dependencies [[org.apache.hadoop/hadoop-core "1.1.2"]
-                 ;; commons-io was omitted in 1.0.3/1.0.4
-                 ;; needs to be explicitly included
-                 ;; until this is resolved.                 
-                 ;; see http://goo.gl/Trx7A
-                 [commons-io "2.4"] 
+  :profiles {:provided {:dependencies [[org.clojure/clojure "1.6.0"]]}}
+  :dependencies [[org.apache.hadoop/hadoop-common "2.6.0"]
+                 [org.apache.hadoop/hadoop-mapreduce-client-core "2.6.0"]
+                 [org.apache.hadoop/hadoop-aws "2.6.0"]
                  [log4j/log4j "1.2.16" :exclusions [javax.mail/mail
                                                     javax.jms/jms
                                                     com.sun.jdmk/jmxtools
                                                     com.sun.jmx/jmxri]]]
   :source-paths ["src" "test"]
-;  :global-vars {*warn-on-reflection* true} 
+  ;;:global-vars {*warn-on-reflection* true}
   :aot [clojure-hadoop.config
         clojure-hadoop.defjob
         clojure-hadoop.gen

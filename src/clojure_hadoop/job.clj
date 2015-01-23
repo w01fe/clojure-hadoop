@@ -5,7 +5,7 @@
             [clojure-hadoop.config :as config]
             [clojure-hadoop.load :as load]
             [clojure.stacktrace])
-  (:import (org.apache.hadoop.util Tool) 
+  (:import (org.apache.hadoop.util Tool)
            org.apache.hadoop.mapreduce.JobContext
            org.apache.hadoop.conf.Configuration
            )
