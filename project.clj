@@ -1,12 +1,12 @@
-(defproject clojure-hadoop "1.4.5-SNAPSHOT"
+(defproject w01fe/clojure-hadoop "1.4.5-SNAPSHOT"
   :description "Library to aid writing Hadoop jobs in Clojure."
-  :url "http://github.com/alexott/clojure-hadoop"
+  :url "http://github.com/w01fe/clojure-hadoop"
   :license {:name "Eclipse Public License 1.0"
             :url "http://opensource.org/licenses/eclipse-1.0.php"
             :distribution "repo"
             :comments "Same license as Clojure"}
-  :dependencies [[org.clojure/clojure "1.5.0"]
-                 [org.apache.hadoop/hadoop-core "1.1.2"]
+  :profiles {:dev {:dependencies [[org.clojure/clojure "1.6.0"]]}}
+  :dependencies [[org.apache.hadoop/hadoop-core "1.1.2"]
                  ;; commons-io was omitted in 1.0.3/1.0.4
                  ;; needs to be explicitly included
                  ;; until this is resolved.                 
