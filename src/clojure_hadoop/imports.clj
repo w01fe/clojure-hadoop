@@ -57,7 +57,7 @@
      FileStatus FileSystem FileSystem$Statistics FileUtil HardLink
      FilterFileSystem FSDataInputStream FSDataOutputStream FSInputChecker
      FSInputStream FSOutputSummer FsShell FsUrlStreamHandlerFactory HarFileSystem
-     InMemoryFileSystem LocalDirAllocator LocalFileSystem Path RawLocalFileSystem
+     LocalDirAllocator LocalFileSystem Path RawLocalFileSystem
      Trash ChecksumException FSError)))
 
 (defn import-mapreduce
@@ -78,8 +78,7 @@
   []
   (import
    '(org.apache.hadoop.filecache
-     DistributedCache TaskDistributedCacheManager
-     TrackerDistributedCacheManager)))
+     DistributedCache)))
 
 (defn import-mapreduce-lib-input
   "Imports all classes/interfaces/exceptions from the package
