@@ -25,9 +25,14 @@ Clojure jobs."
 (defn clojure-reduce-reader
   "Returns a [key seq-of-values] pair by calling read-string on the
   string representations of the Writable key and values."
-  [^Writable wkey wvalues]
-  [(read-string (.toString wkey))
-   (fn [] (map (fn [^Writable v] (read-string (.toString v))) wvalues))])
+  [^Writable wkey ^Iterable wvalues]
+  (let [it (.iterator wvalues)]
+    [(read-string (.toString wkey))
+     (fn realize-seq []
+       (when (.hasNext it)
+         (cons
+          (read-string (.toString (.next it)))
+          (lazy-seq (realize-seq)))))]))
 
 (defn clojure-writer
   "Sends key and value to the Context by calling pr-str on key
@@ -41,7 +46,7 @@ Clojure jobs."
 
   f is a function of two arguments, key and value.
 
-  f must return a *sequence* of *pairs* like 
+  f must return a *sequence* of *pairs* like
     [[key1 value1] [key2 value2] ...]
 
   When f is called, *context* is bound to the Hadoop Reporter.
@@ -69,7 +74,7 @@ Clojure jobs."
   argument is a function, which takes no arguments and returns a lazy
   sequence of values.
 
-  f must return a *sequence* of *pairs* like 
+  f must return a *sequence* of *pairs* like
     [[key1 value1] [key2 value2] ...]
 
   When f is called, *context* is bound to the Hadoop Reporter.
